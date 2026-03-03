@@ -16,7 +16,7 @@
     </div>
 </section>
 
-@foreach (var settore in Settori)
+@foreach (var settore in settoriList)
 {
     <section class="section-padding @(settore.BgClass)" id="@settore.Id">
         <div class="container">
@@ -63,7 +63,7 @@
         string Description, List<string> Capabilities,
         List<MetricItem> Metrics, string BgClass, bool Reverse);
 
-    private List<SectorDetail> Settori = new()
+    private List<SectorDetail> settoriList = new()
     {
         new("oil-gas", "Oil & Gas", "Settore Energetico", "fas fa-oil-well",
             "MB Group vanta una lunga esperienza nell'ingegneria per il settore Oil & Gas, " +

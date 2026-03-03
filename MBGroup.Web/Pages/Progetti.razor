@@ -46,7 +46,7 @@
         </div>
 
         <div class="row g-4">
-            @foreach (var p in Progetti.Where(p => ActiveFilter == "Tutti" || p.Settore == ActiveFilter))
+            @foreach (var p in progettiList.Where(p => ActiveFilter == "Tutti" || p.Settore == ActiveFilter))
             {
                 <div class="col-lg-4 col-md-6">
                     <div class="project-card">
@@ -89,7 +89,7 @@
         string Nome, string Cliente, string Descrizione, string Settore,
         string Tipo, string Luogo, string Stato, List<string> Tags);
 
-    private List<ProgettoItem> Progetti = new()
+    private List<ProgettoItem> progettiList = new()
     {
         new("Impianto Biogas 1MW – Emilia", "Agrienergia Srl",
             "Progettazione EPC completo di impianto biogas da digestione anaerobica con upgrading a biometano.",

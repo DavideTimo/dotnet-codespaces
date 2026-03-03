@@ -68,7 +68,7 @@
                 @for (int m = 1; m <= 12; m++)
                 {
                     var mVal = m;
-                    <option value="@mVal">@new DateTime(2024, mVal, 1).ToString("MMMM", new System.Globalization.CultureInfo("it-IT"))</option>
+                    <option value="@mVal">@(new DateTime(2024, mVal, 1).ToString("MMMM", new System.Globalization.CultureInfo("it-IT")))</option>
                 }
             </select>
             <select class="form-select form-select-sm" style="width:90px" @bind="FiltroAnno" @bind:after="LoadData">
