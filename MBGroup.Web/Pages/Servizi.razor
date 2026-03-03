@@ -1,0 +1,210 @@
+@page "/servizi"
+@layout MainLayout
+
+<PageTitle>Servizi - MB Group Engineering & Services</PageTitle>
+
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Servizi</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title">I Nostri Servizi</h1>
+        <p class="page-hero-subtitle">Soluzioni integrate di engineering per ogni fase del progetto</p>
+    </div>
+</section>
+
+<!-- EPC / EPCM -->
+<section class="section-padding" id="epc">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="section-tag">Contratti Chiavi in Mano</span>
+                <h2 class="section-title">EPC & EPCM</h2>
+                <p class="text-muted mb-4">
+                    MB Group gestisce contratti EPC (Engineering, Procurement & Construction) e EPCM
+                    per impianti industriali di ogni dimensione. Ci facciamo carico dell'intero processo,
+                    dalla progettazione all'avviamento, garantendo rispetto dei tempi e dei costi.
+                </p>
+                <div class="epc-phases">
+                    @foreach (var phase in EpcPhases)
+                    {
+                        <div class="epc-phase">
+                            <div class="phase-number">@phase.Number</div>
+                            <div>
+                                <h6 class="mb-1">@phase.Title</h6>
+                                <p class="text-muted small mb-0">@phase.Desc</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="service-detail-card">
+                    <h5 class="mb-4"><i class="fas fa-star text-accent me-2"></i>Perché scegliere MB Group per EPC</h5>
+                    @foreach (var reason in EpcReasons)
+                    {
+                        <div class="reason-item">
+                            <i class="fas fa-check-circle text-accent me-3"></i>
+                            <span>@reason</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ENGINEERING SERVICES -->
+<section class="section-padding bg-light-gray" id="engineering">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">Ingegneria Tecnica</span>
+            <h2 class="section-title">Servizi di Engineering</h2>
+            <p class="section-subtitle">Competenze multidisciplinari per ogni esigenza tecnica</p>
+        </div>
+        <div class="row g-4">
+            @foreach (var svc in EngineeringServices)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="eng-service-card">
+                        <div class="eng-icon"><i class="@svc.Icon"></i></div>
+                        <h5>@svc.Title</h5>
+                        <p class="text-muted">@svc.Desc</p>
+                        <ul class="eng-list">
+                            @foreach (var item in svc.Items)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- HSE -->
+<section class="section-padding" id="hse">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="hse-visual">
+                    <i class="fas fa-hard-hat"></i>
+                    <h3>Zero Incident</h3>
+                    <p>La nostra filosofia HSE</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <span class="section-tag">Health, Safety & Environment</span>
+                <h2 class="section-title">Servizi HSE</h2>
+                <p class="text-muted mb-4">
+                    La sicurezza è al centro di ogni nostra attività. MB Group offre servizi HSE completi,
+                    dall'analisi di rischio alla redazione dei piani di sicurezza, alle analisi HAZOP e SIL.
+                </p>
+                <div class="row g-3">
+                    @foreach (var hse in HseServices)
+                    {
+                        <div class="col-md-6">
+                            <div class="hse-item">
+                                <i class="@hse.Icon text-accent me-2"></i>
+                                <span>@hse.Name</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CONSULTING -->
+<section class="section-padding bg-navy text-white" id="consulting">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag-light">Consulenza</span>
+            <h2 class="text-white">Technical Consulting</h2>
+        </div>
+        <div class="row g-4">
+            @foreach (var c in ConsultingServices)
+            {
+                <div class="col-lg-3 col-md-6">
+                    <div class="consulting-card">
+                        <i class="@c.Icon"></i>
+                        <h6>@c.Title</h6>
+                        <p class="small text-muted-light">@c.Desc</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private record PhaseItem(string Number, string Title, string Desc);
+    private record EngService(string Title, string Icon, string Desc, List<string> Items);
+    private record HseItem(string Name, string Icon);
+    private record ConsultItem(string Title, string Icon, string Desc);
+
+    private List<PhaseItem> EpcPhases = new()
+    {
+        new("01", "Engineering", "Progettazione dettagliata multidisciplinare con BIM 3D"),
+        new("02", "Procurement", "Approvvigionamento materiali e gestione fornitori qualificati"),
+        new("03", "Construction", "Supervisione e gestione cantiere con team dedicato"),
+        new("04", "Commissioning", "Avviamento e messa in servizio dell'impianto"),
+    };
+
+    private List<string> EpcReasons = new()
+    {
+        "Unico punto di responsabilità per tutto il progetto",
+        "Team multidisciplinare integrato con esperienza consolidata",
+        "Gestione proattiva dei rischi e delle variazioni",
+        "Utilizzo di tecnologie BIM e digital engineering avanzate",
+        "Reporting trasparente e comunicazione continua con il cliente",
+        "Esperienza internazionale in progetti complessi",
+    };
+
+    private List<EngService> EngineeringServices = new()
+    {
+        new("Process Engineering", "fas fa-cogs",
+            "Simulazione e ottimizzazione dei processi industriali",
+            new() { "PFD e P&ID", "Datasheet apparecchiature", "Mass & Energy Balance", "Hazardous Area Classification" }),
+        new("Piping & Layout", "fas fa-project-diagram",
+            "Progettazione e verifica di sistemi di tubazioni",
+            new() { "Piping Layout 3D", "Stress Analysis (Caesar)", "Isometrie e spoolsheet", "Material Take-Off" }),
+        new("Electrical & Instrumentation", "fas fa-bolt",
+            "Ingegneria elettrica, strumentale e di controllo",
+            new() { "Single Line Diagram", "Loop Diagram", "PLC/DCS Engineering", "SIS e Safety Loops" }),
+        new("Civil & Structural", "fas fa-building",
+            "Strutture in acciaio e calcestruzzo per impianti industriali",
+            new() { "Fondazioni speciali", "Strutture pipe-rack", "Tank farm design", "Analisi sismica" }),
+        new("Project Control", "fas fa-chart-gantt",
+            "Controllo tempi e costi per il project management",
+            new() { "Scheduling (Primavera/MS Project)", "Cost Control e EVM", "Risk Management", "Change Management" }),
+        new("Vendor Inspection", "fas fa-search",
+            "Ispezione e qualifica dei fornitori e delle forniture",
+            new() { "Factory Acceptance Test", "Vendor Surveillance", "Material Certification", "QA/QC" }),
+    };
+
+    private List<HseItem> HseServices = new()
+    {
+        new("HAZOP Study", "fas fa-exclamation-triangle"),
+        new("Risk Assessment (LOPA)", "fas fa-shield-alt"),
+        new("SIL Assessment & Verification", "fas fa-check-shield"),
+        new("Fire & Explosion Analysis", "fas fa-fire"),
+        new("Environmental Impact Assessment", "fas fa-leaf"),
+        new("HSE Plans & Procedures", "fas fa-file-alt"),
+        new("Emergency Response Planning", "fas fa-ambulance"),
+        new("Safety Training", "fas fa-graduation-cap"),
+    };
+
+    private List<ConsultItem> ConsultingServices = new()
+    {
+        new("Technical Due Diligence", "fas fa-search", "Verifica tecnica per M&A e finanziamenti"),
+        new("Benchmarking", "fas fa-chart-bar", "Analisi comparative di performance e costi"),
+        new("Troubleshooting", "fas fa-tools", "Risoluzione problemi tecnici di processo e meccanici"),
+        new("Training", "fas fa-graduation-cap", "Formazione tecnica specializzata per operatori e tecnici"),
+    };
+}

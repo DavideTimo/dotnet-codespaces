@@ -1,0 +1,64 @@
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<header class="internal-topbar">
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="topbar-title">
+        <h5 class="mb-0">@GetPageTitle()</h5>
+    </div>
+
+    <div class="topbar-right">
+        <div class="topbar-date">
+            <i class="far fa-calendar-alt me-1"></i>
+            @DateTime.Now.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))
+        </div>
+        <div class="topbar-user dropdown">
+            <button class="btn btn-link dropdown-toggle topbar-user-btn" type="button" data-bs-toggle="dropdown">
+                <div class="user-avatar">@GetInitials()</div>
+                <span class="user-name d-none d-md-inline">@Auth.CurrentEmployee?.FullName</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><h6 class="dropdown-header">@Auth.CurrentEmployee?.Email</h6></li>
+                <li><span class="dropdown-item-text text-muted small">@Auth.CurrentEmployee?.Department</span></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button class="dropdown-item text-danger" @onclick="Logout">
+                        <i class="fas fa-sign-out-alt me-2"></i>Esci
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+@code {
+    private string GetInitials()
+    {
+        var emp = Auth.CurrentEmployee;
+        if (emp == null) return "?";
+        return $"{emp.FirstName[0]}{emp.LastName[0]}".ToUpper();
+    }
+
+    private string GetPageTitle()
+    {
+        var uri = Nav.Uri.TrimEnd('/');
+        return uri.Split('/').Last() switch
+        {
+            "dashboard" => "Dashboard",
+            "timbrature" => "Timbrature",
+            "commesse" => "Ore Commesse",
+            "presenze" => "Presenze Team",
+            "report" => "Report",
+            _ => "Area Dipendenti"
+        };
+    }
+
+    private void Logout()
+    {
+        Auth.Logout();
+        Nav.NavigateTo("/internal/login");
+    }
+}

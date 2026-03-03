@@ -1,0 +1,155 @@
+@page "/internal/login"
+@layout MainLayout
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Accesso Dipendenti - MB Group</PageTitle>
+
+<div class="login-wrapper">
+    <div class="login-left">
+        <div class="login-left-content">
+            <div class="login-brand">
+                <span class="brand-text-login">MB<span class="text-accent">Group</span></span>
+                <span class="brand-subtitle-login">Engineering & Services</span>
+            </div>
+            <h2 class="text-white mt-4 mb-3">Portale Dipendenti</h2>
+            <p class="text-muted-light mb-4">
+                Area riservata ai dipendenti MB Group per la gestione delle timbrature,
+                delle ore lavorative e delle commesse.
+            </p>
+            <div class="login-features">
+                <div class="login-feature-item">
+                    <i class="fas fa-clock text-accent me-3"></i>
+                    <span>Timbratura digitale ingressi e uscite</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="fas fa-clipboard-list text-accent me-3"></i>
+                    <span>Registrazione ore per commessa</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="fas fa-chart-bar text-accent me-3"></i>
+                    <span>Report presenze e attività</span>
+                </div>
+                <div class="login-feature-item">
+                    <i class="fas fa-mobile-alt text-accent me-3"></i>
+                    <span>Accessibile da qualsiasi dispositivo</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-right">
+        <div class="login-form-container">
+            <div class="login-header text-center mb-4">
+                <div class="login-avatar-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h4 class="mt-3 mb-1">Accedi</h4>
+                <p class="text-muted small">Inserisci le tue credenziali aziendali</p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger d-flex align-items-center mb-4">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @ErrorMessage
+                </div>
+            }
+
+            <EditForm Model="@Model" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label class="form-label fw-medium">Email aziendale</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope text-muted"></i></span>
+                        <InputText class="form-control" @bind-Value="Model.Email"
+                                   placeholder="nome@mb-group.it" autocomplete="email" />
+                    </div>
+                    <ValidationMessage For="@(() => Model.Email)" class="text-danger small" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-medium">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+                        <input type="@(ShowPwd ? "text" : "password")" class="form-control"
+                               @bind="Model.Password" placeholder="••••••••" autocomplete="current-password" />
+                        <button type="button" class="input-group-text btn-toggle-pwd" @onclick="() => ShowPwd = !ShowPwd">
+                            <i class="fas @(ShowPwd ? "fa-eye-slash" : "fa-eye") text-muted"></i>
+                        </button>
+                    </div>
+                    <ValidationMessage For="@(() => Model.Password)" class="text-danger small" />
+                </div>
+
+                <button type="submit" class="btn btn-accent w-100 btn-lg mb-3" disabled="@Loading">
+                    @if (Loading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Accesso in corso...</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        <span>Accedi</span>
+                    }
+                </button>
+            </EditForm>
+
+            <div class="login-demo-info">
+                <details>
+                    <summary class="text-muted small">Credenziali di demo</summary>
+                    <div class="mt-2 p-3 bg-light rounded small">
+                        <strong>Admin:</strong> mario.rossi@mb-group.it / Password1!<br/>
+                        <strong>Manager:</strong> laura.bianchi@mb-group.it / Password1!<br/>
+                        <strong>Dipendente:</strong> luca.verdi@mb-group.it / Password1!
+                    </div>
+                </details>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="/" class="text-muted small">
+                    <i class="fas fa-arrow-left me-1"></i>Torna al sito
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginModel Model = new();
+    private string ErrorMessage = "";
+    private bool Loading = false;
+    private bool ShowPwd = false;
+
+    protected override void OnInitialized()
+    {
+        if (Auth.IsAuthenticated)
+            Nav.NavigateTo("/internal/dashboard");
+    }
+
+    private async Task HandleLogin()
+    {
+        Loading = true;
+        ErrorMessage = "";
+
+        var success = await Auth.LoginAsync(Model.Email, Model.Password);
+
+        if (success)
+            Nav.NavigateTo("/internal/dashboard");
+        else
+            ErrorMessage = "Email o password non corretti. Riprova.";
+
+        Loading = false;
+    }
+
+    private class LoginModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Inserisci l'email")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Email non valida")]
+        public string Email { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Inserisci la password")]
+        public string Password { get; set; } = "";
+    }
+}

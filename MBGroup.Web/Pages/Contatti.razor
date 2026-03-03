@@ -1,0 +1,203 @@
+@page "/contatti"
+@layout MainLayout
+
+<PageTitle>Contatti - MB Group Engineering & Services</PageTitle>
+
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Contatti</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title">Contattaci</h1>
+        <p class="page-hero-subtitle">Siamo pronti ad ascoltarti e rispondere alle tue esigenze</p>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Form -->
+            <div class="col-lg-7">
+                <div class="contact-form-card">
+                    <h4 class="mb-4">Invia un messaggio</h4>
+
+                    @if (Sent)
+                    {
+                        <div class="alert alert-success d-flex align-items-center" role="alert">
+                            <i class="fas fa-check-circle me-3 fs-4"></i>
+                            <div>
+                                <strong>Messaggio inviato!</strong><br/>
+                                Ti risponderemo al più presto. Grazie per aver contattato MB Group.
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="@FormModel" OnValidSubmit="HandleSubmit">
+                            <DataAnnotationsValidator />
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nome *</label>
+                                    <InputText class="form-control" @bind-Value="FormModel.Nome" placeholder="Il tuo nome" />
+                                    <ValidationMessage For="@(() => FormModel.Nome)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Cognome *</label>
+                                    <InputText class="form-control" @bind-Value="FormModel.Cognome" placeholder="Il tuo cognome" />
+                                    <ValidationMessage For="@(() => FormModel.Cognome)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email *</label>
+                                    <InputText class="form-control" @bind-Value="FormModel.Email" placeholder="nome@azienda.it" />
+                                    <ValidationMessage For="@(() => FormModel.Email)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Telefono</label>
+                                    <InputText class="form-control" @bind-Value="FormModel.Telefono" placeholder="+39 ..." />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Azienda</label>
+                                    <InputText class="form-control" @bind-Value="FormModel.Azienda" placeholder="Nome della tua azienda" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Settore di interesse</label>
+                                    <InputSelect class="form-select" @bind-Value="FormModel.Settore">
+                                        <option value="">-- Seleziona --</option>
+                                        <option>Oil & Gas</option>
+                                        <option>Chemical</option>
+                                        <option>Biogas & Biomethane</option>
+                                        <option>Renewable Energy</option>
+                                        <option>Nuclear</option>
+                                        <option>Hydrogen</option>
+                                        <option>Steelworks</option>
+                                        <option>Circular Economy</option>
+                                        <option>Altro</option>
+                                    </InputSelect>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Messaggio *</label>
+                                    <InputTextArea class="form-control" @bind-Value="FormModel.Messaggio"
+                                                   rows="5" placeholder="Descrivi il tuo progetto o la tua richiesta..." />
+                                    <ValidationMessage For="@(() => FormModel.Messaggio)" />
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <InputCheckbox class="form-check-input" @bind-Value="FormModel.Privacy" />
+                                        <label class="form-check-label">
+                                            Acconsento al trattamento dei dati personali ai sensi del GDPR *
+                                        </label>
+                                    </div>
+                                    <ValidationMessage For="@(() => FormModel.Privacy)" />
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-accent btn-lg w-100" disabled="@Sending">
+                                        @if (Sending)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2"></span>
+                                            <span>Invio in corso...</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-paper-plane me-2"></i>
+                                            <span>Invia Messaggio</span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+
+            <!-- Info Contatti -->
+            <div class="col-lg-5">
+                <h4 class="mb-4">Dove Siamo</h4>
+
+                <div class="contact-info-cards">
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h6>Sede Principale – Italia</h6>
+                            <p class="text-muted mb-0">Viale Isaac Newton, 32<br/>48124 Ravenna (RA)<br/>Emilia-Romagna, Italia</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h6>Sede Olanda</h6>
+                            <p class="text-muted mb-0">Willemstad<br/>Paesi Bassi</p>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <h6>Telefono</h6>
+                            <a href="tel:+390544407291" class="text-muted">+39 0544 407291</a>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <h6>Email</h6>
+                            <a href="mailto:info@mb-group.it" class="text-muted">info@mb-group.it</a>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="far fa-clock"></i></div>
+                        <div>
+                            <h6>Orari</h6>
+                            <p class="text-muted mb-0">Lunedì – Venerdì<br/>8:30 – 17:30</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="map-placeholder mt-4">
+                    <i class="fas fa-map-marked-alt fa-3x text-accent mb-3"></i>
+                    <p class="text-muted">Ravenna, Emilia-Romagna<br/>Via Isaac Newton 32</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private ContattoForm FormModel = new();
+    private bool Sending = false;
+    private bool Sent = false;
+
+    private async Task HandleSubmit()
+    {
+        if (!FormModel.Privacy) return;
+        Sending = true;
+        await Task.Delay(1200); // Simula invio
+        Sending = false;
+        Sent = true;
+    }
+
+    private class ContattoForm
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Il nome è obbligatorio")]
+        public string Nome { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Il cognome è obbligatorio")]
+        public string Cognome { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "L'email è obbligatoria")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Email non valida")]
+        public string Email { get; set; } = "";
+
+        public string Telefono { get; set; } = "";
+        public string Azienda { get; set; } = "";
+        public string Settore { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Il messaggio è obbligatorio")]
+        [System.ComponentModel.DataAnnotations.MinLength(10, ErrorMessage = "Il messaggio deve essere almeno 10 caratteri")]
+        public string Messaggio { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Range(typeof(bool), "true", "true", ErrorMessage = "Devi accettare la privacy policy")]
+        public bool Privacy { get; set; } = false;
+    }
+}

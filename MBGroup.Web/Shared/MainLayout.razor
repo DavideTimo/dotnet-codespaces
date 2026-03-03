@@ -1,0 +1,74 @@
+@inherits LayoutComponentBase
+
+<NavMenu />
+
+<main>
+    @Body
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="footer-brand mb-3">
+                    <span class="footer-logo-text">MB<span class="text-accent">Group</span></span>
+                </div>
+                <p class="text-muted-light">Engineering & Services</p>
+                <p class="text-muted-light small">Dal 1987 al fianco dei nostri clienti nei settori dell'ingegneria industriale, energia e ambiente.</p>
+                <div class="social-links mt-3">
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="footer-heading">Settori</h6>
+                <ul class="footer-links">
+                    <li><a href="/settori#oil-gas">Oil & Gas</a></li>
+                    <li><a href="/settori#chemical">Chemical</a></li>
+                    <li><a href="/settori#biogas">Biogas</a></li>
+                    <li><a href="/settori#renewable">Renewable Energy</a></li>
+                    <li><a href="/settori#nuclear">Nuclear</a></li>
+                    <li><a href="/settori#hydrogen">Hydrogen</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h6 class="footer-heading">Servizi</h6>
+                <ul class="footer-links">
+                    <li><a href="/servizi#epc">EPC / EPCM</a></li>
+                    <li><a href="/servizi#engineering">Engineering</a></li>
+                    <li><a href="/servizi#consulting">Consulting</a></li>
+                    <li><a href="/servizi#hse">HSE</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4 col-md-4">
+                <h6 class="footer-heading">Contatti</h6>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2 text-accent"></i>Viale Isaac Newton, 32 - 48124 Ravenna</li>
+                    <li><i class="fas fa-phone me-2 text-accent"></i>+39 0544 407291</li>
+                    <li><i class="fas fa-envelope me-2 text-accent"></i>info@mb-group.it</li>
+                </ul>
+                <div class="mt-3">
+                    <span class="badge bg-accent-subtle text-accent me-1">Sede Ravenna</span>
+                    <span class="badge bg-accent-subtle text-accent">Sede Olanda</span>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider" />
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="text-muted-light small mb-0">© @DateTime.Now.Year MB Group S.r.l. - P.IVA 13054180966</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="/internal/login" class="btn btn-sm btn-outline-accent">
+                    <i class="fas fa-lock me-1"></i>Accesso Dipendenti
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div id="blazor-error-ui">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Si è verificato un errore. <a href="" class="reload">Ricarica la pagina</a>
+    <a class="dismiss">✕</a>
+</div>

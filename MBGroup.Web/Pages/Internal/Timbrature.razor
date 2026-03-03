@@ -1,0 +1,320 @@
+@page "/internal/timbrature"
+@layout InternalLayout
+@inject AuthService Auth
+@inject TimbratureService TimbratureService
+
+<PageTitle>Timbrature - MB Group Portale</PageTitle>
+
+<div class="row g-4">
+    <!-- CLOCK CARD -->
+    <div class="col-lg-5">
+        <div class="clock-card">
+            <div class="clock-display">
+                <div class="clock-time">@CurrentTime</div>
+                <div class="clock-date">@DateTime.Now.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))</div>
+            </div>
+
+            <div class="clock-status mb-4">
+                @if (StatoAttuale == StatoPresenza.Presente)
+                {
+                    <span class="status-badge status-present">
+                        <i class="fas fa-circle me-1"></i>In ufficio
+                    </span>
+                }
+                else if (StatoAttuale == StatoPresenza.InPausa)
+                {
+                    <span class="status-badge status-pausa">
+                        <i class="fas fa-coffee me-1"></i>In pausa
+                    </span>
+                }
+                else
+                {
+                    <span class="status-badge status-absent">
+                        <i class="fas fa-circle me-1"></i>Non presente
+                    </span>
+                }
+            </div>
+
+            <div class="timbratura-buttons">
+                <button class="btn-timbra btn-ingresso"
+                        @onclick="() => Timbra(Timbratura.TipoTimbratura.Ingresso)"
+                        disabled="@(StatoAttuale == StatoPresenza.Presente || StatoAttuale == StatoPresenza.InPausa || Loading)">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Ingresso</span>
+                </button>
+                <button class="btn-timbra btn-pausa"
+                        @onclick="() => Timbra(Timbratura.TipoTimbratura.PausaInizio)"
+                        disabled="@(StatoAttuale != StatoPresenza.Presente || Loading)">
+                    <i class="fas fa-coffee"></i>
+                    <span>Inizio Pausa</span>
+                </button>
+                <button class="btn-timbra btn-ritorno"
+                        @onclick="() => Timbra(Timbratura.TipoTimbratura.PausaFine)"
+                        disabled="@(StatoAttuale != StatoPresenza.InPausa || Loading)">
+                    <i class="fas fa-redo"></i>
+                    <span>Fine Pausa</span>
+                </button>
+                <button class="btn-timbra btn-uscita"
+                        @onclick="() => Timbra(Timbratura.TipoTimbratura.Uscita)"
+                        disabled="@(StatoAttuale == StatoPresenza.Assente || Loading)">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Uscita</span>
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Messaggio))
+            {
+                <div class="alert @(IsError ? "alert-danger" : "alert-success") mt-3 mb-0">
+                    <i class="fas @(IsError ? "fa-exclamation-circle" : "fa-check-circle") me-2"></i>
+                    @Messaggio
+                </div>
+            }
+
+            <div class="ore-oggi-display mt-4">
+                <div class="ore-oggi-label">Ore lavorate oggi</div>
+                <div class="ore-oggi-value">@OreOggi.ToString(@"h\:mm")</div>
+                <div class="ore-obiettivo">
+                    <div class="progress mt-2" style="height:8px">
+                        <div class="progress-bar @GetOreProgressClass()" style="width:@GetOrePercent()%"></div>
+                    </div>
+                    <small class="text-muted">Obiettivo: 8:00h</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="col-lg-7">
+        <!-- OGGI -->
+        <div class="dashboard-card mb-4">
+            <div class="dashboard-card-header">
+                <h6><i class="fas fa-calendar-day me-2"></i>Timbrature di Oggi</h6>
+                <span class="badge bg-light text-dark">@TodayTimbrature.Count timbrature</span>
+            </div>
+            <div class="dashboard-card-body">
+                @if (TodayTimbrature.Any())
+                {
+                    <div class="timbratura-timeline">
+                        @foreach (var t in TodayTimbrature)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-dot @GetDotClass(t.Tipo)"></div>
+                                <div class="timeline-content w-100">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="timeline-time fw-bold">@t.DataOra.ToString("HH:mm:ss")</span>
+                                            <span class="badge @GetBadgeClass(t.Tipo) ms-2">@GetLabel(t.Tipo)</span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(t.Note))
+                                        {
+                                            <small class="text-muted"><i class="fas fa-comment me-1"></i>@t.Note</small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-clock text-muted"></i>
+                        <p class="text-muted">Nessuna timbratura registrata oggi</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- STORICO PER DATA -->
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h6><i class="fas fa-history me-2"></i>Storico Timbrature</h6>
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control form-control-sm" @bind="DaData" style="width:140px" />
+                    <input type="date" class="form-control form-control-sm" @bind="AData" style="width:140px" />
+                    <button class="btn btn-sm btn-accent" @onclick="LoadStorico">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                @if (StoricoTimbrature.Any())
+                {
+                    @foreach (var gruppo in StoricoTimbrature.GroupBy(t => t.DataOra.Date).OrderByDescending(g => g.Key))
+                    {
+                        <div class="storico-day-group">
+                            <div class="storico-day-header">
+                                <span>@gruppo.Key.ToString("dddd d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))</span>
+                                <span class="badge bg-light text-dark">
+                                    @GetOreLavorateGiorno(gruppo.ToList()).ToString(@"h\:mm")h
+                                </span>
+                            </div>
+                            <div class="storico-day-items">
+                                @foreach (var t in gruppo.OrderBy(x => x.DataOra))
+                                {
+                                    <span class="timbratura-chip @GetChipClass(t.Tipo)">
+                                        @t.DataOra.ToString("HH:mm") – @GetLabel(t.Tipo)
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-search text-muted"></i>
+                        <p class="text-muted">Nessun risultato per il periodo selezionato</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Timbratura> TodayTimbrature = new();
+    private List<Timbratura> StoricoTimbrature = new();
+    private TimeSpan OreOggi = TimeSpan.Zero;
+    private StatoPresenza StatoAttuale = StatoPresenza.Assente;
+    private string CurrentTime = DateTime.Now.ToString("HH:mm:ss");
+    private string Messaggio = "";
+    private bool IsError = false;
+    private bool Loading = false;
+    private DateTime DaData = DateTime.Today.AddDays(-7);
+    private DateTime AData = DateTime.Today;
+    private System.Timers.Timer? _timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        await LoadStorico();
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += async (_, _) =>
+        {
+            CurrentTime = DateTime.Now.ToString("HH:mm:ss");
+            await InvokeAsync(StateHasChanged);
+        };
+        _timer.Start();
+    }
+
+    private async Task LoadData()
+    {
+        if (Auth.CurrentEmployee == null) return;
+        var empId = Auth.CurrentEmployee.Id;
+        TodayTimbrature = await TimbratureService.GetTodayTimbratureAsync(empId);
+        OreOggi = await TimbratureService.GetOreGiornaliereAsync(empId);
+        StatoAttuale = DetermineStato();
+    }
+
+    private async Task LoadStorico()
+    {
+        if (Auth.CurrentEmployee == null) return;
+        StoricoTimbrature = await TimbratureService.GetTimbratureByDateRangeAsync(
+            Auth.CurrentEmployee.Id, DaData, AData);
+    }
+
+    private async Task Timbra(Timbratura.TipoTimbratura tipo)
+    {
+        if (Auth.CurrentEmployee == null) return;
+        Loading = true;
+        try
+        {
+            await TimbratureService.AddTimbratura(Auth.CurrentEmployee.Id, tipo);
+            Messaggio = $"✓ {GetLabel(tipo)} registrata alle {DateTime.Now:HH:mm}";
+            IsError = false;
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Messaggio = "Errore durante la timbratura: " + ex.Message;
+            IsError = true;
+        }
+        finally
+        {
+            Loading = false;
+        }
+
+        await Task.Delay(4000);
+        Messaggio = "";
+    }
+
+    private StatoPresenza DetermineStato()
+    {
+        var last = TodayTimbrature.LastOrDefault();
+        if (last == null) return StatoPresenza.Assente;
+        return last.Tipo switch
+        {
+            Timbratura.TipoTimbratura.Ingresso => StatoPresenza.Presente,
+            Timbratura.TipoTimbratura.PausaInizio => StatoPresenza.InPausa,
+            Timbratura.TipoTimbratura.PausaFine => StatoPresenza.Presente,
+            Timbratura.TipoTimbratura.Uscita => StatoPresenza.Assente,
+            _ => StatoPresenza.Assente
+        };
+    }
+
+    private TimeSpan GetOreLavorateGiorno(List<Timbratura> timbrature)
+    {
+        var total = TimeSpan.Zero;
+        DateTime? lastIngresso = null;
+        foreach (var t in timbrature.OrderBy(x => x.DataOra))
+        {
+            if (t.Tipo == Timbratura.TipoTimbratura.Ingresso) lastIngresso = t.DataOra;
+            else if (t.Tipo == Timbratura.TipoTimbratura.Uscita && lastIngresso.HasValue)
+            {
+                total += t.DataOra - lastIngresso.Value;
+                lastIngresso = null;
+            }
+        }
+        return total;
+    }
+
+    private string GetLabel(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "Ingresso",
+        Timbratura.TipoTimbratura.Uscita => "Uscita",
+        Timbratura.TipoTimbratura.PausaInizio => "Inizio Pausa",
+        Timbratura.TipoTimbratura.PausaFine => "Fine Pausa",
+        _ => tipo.ToString()
+    };
+
+    private string GetDotClass(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "dot-success",
+        Timbratura.TipoTimbratura.Uscita => "dot-danger",
+        _ => "dot-warning"
+    };
+
+    private string GetBadgeClass(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "bg-success",
+        Timbratura.TipoTimbratura.Uscita => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+
+    private string GetChipClass(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "chip-ingresso",
+        Timbratura.TipoTimbratura.Uscita => "chip-uscita",
+        _ => "chip-pausa"
+    };
+
+    private int GetOrePercent()
+    {
+        var target = 8.0;
+        var actual = OreOggi.TotalHours;
+        return (int)Math.Min((actual / target) * 100, 100);
+    }
+
+    private string GetOreProgressClass()
+    {
+        var hours = OreOggi.TotalHours;
+        if (hours >= 8) return "bg-success";
+        if (hours >= 4) return "bg-accent";
+        return "bg-warning";
+    }
+
+    public void Dispose() => _timer?.Dispose();
+
+    private enum StatoPresenza { Assente, Presente, InPausa }
+}

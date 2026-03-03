@@ -1,0 +1,171 @@
+@page "/chi-siamo"
+@layout MainLayout
+
+<PageTitle>Chi Siamo - MB Group Engineering & Services</PageTitle>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Chi Siamo</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title">Chi Siamo</h1>
+        <p class="page-hero-subtitle">Dal 1987, partner di eccellenza nell'ingegneria industriale</p>
+    </div>
+</section>
+
+<!-- MISSION -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="section-tag">La Nostra Storia</span>
+                <h2 class="section-title">37 anni di Eccellenza Ingegneristica</h2>
+                <p class="text-muted mb-3">
+                    Fondata nel 1987, MB Group è una società di engineering e servizi con sede principale
+                    a Ravenna, nel cuore dell'Emilia-Romagna. In oltre tre decenni di attività, abbiamo
+                    costruito una solida reputazione come partner affidabile per i grandi player industriali.
+                </p>
+                <p class="text-muted mb-3">
+                    Operiamo con un team di oltre 50 professionisti altamente qualificati, supportando
+                    i nostri clienti dalla fase di studio e progettazione fino alla costruzione e messa
+                    in servizio degli impianti.
+                </p>
+                <p class="text-muted">
+                    La nostra presenza internazionale, con sedi in Italia e nei Paesi Bassi, ci permette
+                    di operare in tutta Europa e a livello globale, garantendo sempre elevati standard
+                    di qualità e professionalità.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-box">
+                            <span class="stat-number">1987</span>
+                            <span class="stat-label">Anno di Fondazione</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box stat-box-accent">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Professionisti</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box stat-box-accent">
+                            <span class="stat-number">200+</span>
+                            <span class="stat-label">Progetti Completati</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-box">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Settori di Mercato</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- VALORI -->
+<section class="section-padding bg-light-gray">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">I Nostri Valori</span>
+            <h2 class="section-title">Su Cosa Siamo Fondati</h2>
+        </div>
+        <div class="row g-4">
+            @foreach (var v in Valori)
+            {
+                <div class="col-lg-3 col-md-6">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="@v.Icon"></i></div>
+                        <h5>@v.Title</h5>
+                        <p class="text-muted">@v.Description</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- TEAM / DIPARTIMENTI -->
+<section class="section-padding">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">Le Nostre Competenze</span>
+            <h2 class="section-title">Dipartimenti Tecnici</h2>
+        </div>
+        <div class="row g-4">
+            @foreach (var d in Departments)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="dept-card">
+                        <i class="@d.Icon dept-icon"></i>
+                        <h6 class="dept-title">@d.Title</h6>
+                        <p class="dept-desc">@d.Desc</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- CERTIFICAZIONI -->
+<section class="section-padding bg-navy text-white">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag-light">Qualità</span>
+            <h2 class="text-white">Certificazioni & Standard</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            @foreach (var cert in Certificazioni)
+            {
+                <div class="col-lg-3 col-md-4 col-6">
+                    <div class="cert-card">
+                        <i class="@cert.Icon mb-2"></i>
+                        <h6>@cert.Title</h6>
+                        <p class="small text-muted-light">@cert.Desc</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private record ValoreItem(string Title, string Icon, string Description);
+    private record DeptItem(string Title, string Icon, string Desc);
+    private record CertItem(string Title, string Icon, string Desc);
+
+    private List<ValoreItem> Valori = new()
+    {
+        new("Qualità", "fas fa-medal", "Ogni progetto rispetta i più elevati standard qualitativi internazionali"),
+        new("Sicurezza", "fas fa-hard-hat", "La sicurezza è una priorità assoluta in ogni fase operativa"),
+        new("Innovazione", "fas fa-lightbulb", "Adottiamo le tecnologie più avanzate per soluzioni efficienti"),
+        new("Affidabilità", "fas fa-handshake", "Siamo partner di fiducia per clienti e stakeholder"),
+    };
+
+    private List<DeptItem> Departments = new()
+    {
+        new("Process Engineering", "fas fa-cogs", "Analisi e simulazione di processo, PFD, P&ID, datasheet apparecchiature"),
+        new("Piping & Layout", "fas fa-project-diagram", "Routing piping, isometrie, stress analysis, plant layout 3D"),
+        new("Electrical & Instrumentation", "fas fa-bolt", "Progettazione E&I, SIS, HAZOP, loop diagram"),
+        new("Civil & Structural", "fas fa-building", "Progettazione strutture in acciaio e calcestruzzo"),
+        new("Project Management", "fas fa-tasks", "Pianificazione, controllo costi e gestione rischi di progetto"),
+        new("HSE", "fas fa-shield-alt", "Analisi rischio, HAZOP, SIL assessment, piani di sicurezza"),
+    };
+
+    private List<CertItem> Certificazioni = new()
+    {
+        new("ISO 9001:2015", "fas fa-certificate", "Sistema di Gestione Qualità"),
+        new("ISO 14001", "fas fa-leaf", "Gestione Ambientale"),
+        new("ISO 45001", "fas fa-hard-hat", "Salute e Sicurezza sul Lavoro"),
+        new("ATEX", "fas fa-fire-extinguisher", "Direttiva Atmosfere Esplosive"),
+    };
+}

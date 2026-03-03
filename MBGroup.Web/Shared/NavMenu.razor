@@ -1,0 +1,59 @@
+@inject NavigationManager Nav
+
+<nav class="navbar navbar-expand-lg site-navbar" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <span class="brand-text">MB<span class="text-accent">Group</span></span>
+            <span class="brand-subtitle">Engineering & Services</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/chi-siamo">Chi Siamo</NavLink>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Settori
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/settori#oil-gas"><i class="fas fa-oil-well me-2 text-accent"></i>Oil & Gas</a></li>
+                        <li><a class="dropdown-item" href="/settori#chemical"><i class="fas fa-flask me-2 text-accent"></i>Chemical</a></li>
+                        <li><a class="dropdown-item" href="/settori#biogas"><i class="fas fa-leaf me-2 text-accent"></i>Biogas & Biomethane</a></li>
+                        <li><a class="dropdown-item" href="/settori#renewable"><i class="fas fa-solar-panel me-2 text-accent"></i>Renewable Energy</a></li>
+                        <li><a class="dropdown-item" href="/settori#nuclear"><i class="fas fa-atom me-2 text-accent"></i>Nuclear</a></li>
+                        <li><a class="dropdown-item" href="/settori#hydrogen"><i class="fas fa-fire me-2 text-accent"></i>Hydrogen</a></li>
+                        <li><a class="dropdown-item" href="/settori#steelworks"><i class="fas fa-industry me-2 text-accent"></i>Steelworks</a></li>
+                        <li><a class="dropdown-item" href="/settori#circular"><i class="fas fa-recycle me-2 text-accent"></i>Circular Economy</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/servizi">Servizi</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/progetti">Progetti</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/contatti">Contatti</NavLink>
+                </li>
+                <li class="nav-item ms-lg-3">
+                    <a href="/internal/login" class="btn btn-accent btn-sm">
+                        <i class="fas fa-sign-in-alt me-1"></i>Area Dipendenti
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += (s, e) => StateHasChanged();
+    }
+}

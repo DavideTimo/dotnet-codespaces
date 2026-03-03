@@ -1,0 +1,384 @@
+@page "/internal/commesse"
+@layout InternalLayout
+@inject AuthService Auth
+@inject CommesseService CommesseService
+
+<PageTitle>Ore Commesse - MB Group Portale</PageTitle>
+
+<div class="row g-4">
+    <!-- FORM INSERIMENTO ORE -->
+    <div class="col-lg-5">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h6><i class="fas fa-plus-circle me-2 text-accent"></i>Registra Ore</h6>
+            </div>
+            <div class="dashboard-card-body">
+                @if (!string.IsNullOrEmpty(SaveMsg))
+                {
+                    <div class="alert @(SaveError ? "alert-danger" : "alert-success") mb-3">
+                        <i class="fas @(SaveError ? "fa-times-circle" : "fa-check-circle") me-2"></i>
+                        @SaveMsg
+                    </div>
+                }
+
+                <EditForm Model="@NuovaOra" OnValidSubmit="SaveOre">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Commessa *</label>
+                        <InputSelect class="form-select" @bind-Value="NuovaOra.CommessaId">
+                            <option value="0">-- Seleziona commessa --</option>
+                            @foreach (var c in CommesseAttive)
+                            {
+                                <option value="@c.Id">@c.Codice – @c.Nome</option>
+                            }
+                        </InputSelect>
+                        @if (NuovaOra.CommessaId == 0 && ShowValidation)
+                        {
+                            <div class="text-danger small mt-1">Seleziona una commessa</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Data *</label>
+                        <InputDate class="form-control" @bind-Value="NuovaOra.Data" />
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-medium">Ore *</label>
+                            <div class="ore-input-group">
+                                <button type="button" class="ore-btn" @onclick="() => AdjustOre(-0.5m)">−</button>
+                                <InputNumber class="form-control text-center" @bind-Value="NuovaOra.Ore" min="0.5" max="24" step="0.5" />
+                                <button type="button" class="ore-btn" @onclick="() => AdjustOre(0.5m)">+</button>
+                            </div>
+                            <ValidationMessage For="@(() => NuovaOra.Ore)" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-medium">Tipo Attività</label>
+                            <InputSelect class="form-select" @bind-Value="NuovaOra.TipoAttivita">
+                                @foreach (var t in Enum.GetValues<TipoAttivita>())
+                                {
+                                    <option value="@t">@GetTipoLabel(t)</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Descrizione attività</label>
+                        <InputTextArea class="form-control" @bind-Value="NuovaOra.Descrizione"
+                                       rows="3" placeholder="Descrivi brevemente l'attività svolta..." />
+                    </div>
+
+                    <!-- PRESET ORE RAPIDE -->
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small text-muted">Selezione rapida ore</label>
+                        <div class="ore-presets">
+                            @foreach (var preset in OrePreset)
+                            {
+                                <button type="button" class="ore-preset-btn @(NuovaOra.Ore == preset ? "active" : "")"
+                                        @onclick="() => NuovaOra.Ore = preset">
+                                    @preset.ToString("F1")h
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent w-100" disabled="@Saving">
+                        @if (Saving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Salvataggio...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-save me-2"></i>
+                            <span>Salva Ore</span>
+                        }
+                    </button>
+                </EditForm>
+            </div>
+        </div>
+
+        <!-- RIEPILOGO SETTIMANA -->
+        @if (RiepilogoSettimana.Any())
+        {
+            <div class="dashboard-card mt-3">
+                <div class="dashboard-card-header">
+                    <h6><i class="fas fa-chart-pie me-2"></i>Questa Settimana</h6>
+                    <span class="badge bg-accent">@RiepilogoSettimana.Values.Sum().ToString("F1")h totali</span>
+                </div>
+                <div class="dashboard-card-body">
+                    @foreach (var kv in RiepilogoSettimana)
+                    {
+                        var perc = RiepilogoSettimana.Values.Sum() > 0
+                            ? (double)(kv.Value / RiepilogoSettimana.Values.Sum()) * 100 : 0;
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span class="text-truncate me-2 fw-medium">@kv.Key</span>
+                                <span class="text-nowrap text-muted">@kv.Value.ToString("F1")h</span>
+                            </div>
+                            <div class="progress" style="height:4px">
+                                <div class="progress-bar bg-accent" style="width:@((int)perc)%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- LISTA ORE REGISTRATE -->
+    <div class="col-lg-7">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h6><i class="fas fa-list me-2"></i>Ore Registrate</h6>
+                <div class="d-flex gap-2 align-items-center">
+                    <input type="date" class="form-control form-control-sm" @bind="FiltroData" style="width:140px" />
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="ClearFilter">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                @if (OreRegistrate.Any())
+                {
+                    var filtered = FiltroData.HasValue
+                        ? OreRegistrate.Where(o => o.Data == DateOnly.FromDateTime(FiltroData.Value)).ToList()
+                        : OreRegistrate;
+
+                    @foreach (var gruppo in filtered.GroupBy(o => o.Data).OrderByDescending(g => g.Key))
+                    {
+                        <div class="ore-day-group">
+                            <div class="ore-day-header">
+                                <span>@gruppo.Key.ToString("dddd d MMMM", new System.Globalization.CultureInfo("it-IT"))</span>
+                                <span class="badge bg-light text-dark">
+                                    Totale: @gruppo.Sum(o => o.Ore).ToString("F1")h
+                                </span>
+                            </div>
+                            @foreach (var ore in gruppo.OrderBy(o => o.CreatedAt))
+                            {
+                                <div class="ore-row @(EditingId == ore.Id ? "editing" : "")">
+                                    @if (EditingId == ore.Id && EditModel != null)
+                                    {
+                                        <!-- EDIT MODE -->
+                                        <div class="ore-edit-form">
+                                            <div class="row g-2">
+                                                <div class="col-3">
+                                                    <InputSelect class="form-select form-select-sm" @bind-Value="EditModel.CommessaId">
+                                                        @foreach (var c in CommesseAttive)
+                                                        {
+                                                            <option value="@c.Id">@c.Codice</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <div class="col-2">
+                                                    <InputNumber class="form-control form-control-sm" @bind-Value="EditModel.Ore" min="0.5" max="24" step="0.5" />
+                                                </div>
+                                                <div class="col-3">
+                                                    <InputSelect class="form-select form-select-sm" @bind-Value="EditModel.TipoAttivita">
+                                                        @foreach (var t in Enum.GetValues<TipoAttivita>())
+                                                        {
+                                                            <option value="@t">@GetTipoLabel(t)</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <div class="col-4 d-flex gap-1">
+                                                    <button class="btn btn-sm btn-success" @onclick="() => SaveEdit(ore)">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary" @onclick="CancelEdit">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col-12">
+                                                    <InputTextArea class="form-control form-control-sm" @bind-Value="EditModel.Descrizione" rows="2" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- VIEW MODE -->
+                                        <div class="ore-info">
+                                            <div class="ore-commessa-code">@ore.Commessa?.Codice</div>
+                                            <div class="ore-commessa-name">@ore.Commessa?.Nome</div>
+                                            <div class="ore-details">
+                                                <span class="ore-badge @GetTipoBadgeClass(ore.TipoAttivita)">
+                                                    @GetTipoLabel(ore.TipoAttivita)
+                                                </span>
+                                                @if (!string.IsNullOrEmpty(ore.Descrizione))
+                                                {
+                                                    <span class="ore-desc text-muted">@ore.Descrizione</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="ore-actions">
+                                            <span class="ore-value">@ore.Ore.ToString("F1")h</span>
+                                            <button class="btn btn-sm btn-link p-0 ms-2" @onclick="() => StartEdit(ore)"
+                                                    title="Modifica">
+                                                <i class="fas fa-pen text-muted"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-link p-0 ms-1" @onclick="() => DeleteOre(ore.Id)"
+                                                    title="Elimina">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard text-muted"></i>
+                        <p class="text-muted">Nessuna ora registrata</p>
+                        <p class="text-muted small">Usa il form a sinistra per registrare le ore</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<CommessaOre> OreRegistrate = new();
+    private List<Commessa> CommesseAttive = new();
+    private Dictionary<string, decimal> RiepilogoSettimana = new();
+    private CommessaOreForm NuovaOra = new();
+    private CommessaOreForm? EditModel;
+    private int EditingId = 0;
+    private bool Saving = false;
+    private bool SaveError = false;
+    private string SaveMsg = "";
+    private bool ShowValidation = false;
+    private DateTime? FiltroData = null;
+
+    private static readonly List<decimal> OrePreset = new() { 0.5m, 1m, 2m, 4m, 6m, 7.5m, 8m };
+
+    protected override async Task OnInitializedAsync()
+    {
+        CommesseAttive = await CommesseService.GetCommesseAttiveAsync();
+        await LoadOre();
+    }
+
+    private async Task LoadOre()
+    {
+        if (Auth.CurrentEmployee == null) return;
+        var from = DateOnly.FromDateTime(DateTime.Today.AddDays(-30));
+        OreRegistrate = await CommesseService.GetOreByEmployeeAsync(Auth.CurrentEmployee.Id, from);
+        RiepilogoSettimana = await CommesseService.GetRiepilogoOreSettimanaAsync(Auth.CurrentEmployee.Id);
+    }
+
+    private void AdjustOre(decimal delta)
+    {
+        NuovaOra.Ore = Math.Max(0.5m, Math.Min(24m, NuovaOra.Ore + delta));
+    }
+
+    private async Task SaveOre()
+    {
+        ShowValidation = true;
+        if (NuovaOra.CommessaId == 0) return;
+        if (Auth.CurrentEmployee == null) return;
+
+        Saving = true;
+        try
+        {
+            var ore = new CommessaOre
+            {
+                CommessaId = NuovaOra.CommessaId,
+                EmployeeId = Auth.CurrentEmployee.Id,
+                Data = NuovaOra.Data,
+                Ore = NuovaOra.Ore,
+                TipoAttivita = NuovaOra.TipoAttivita,
+                Descrizione = NuovaOra.Descrizione
+            };
+            await CommesseService.AddOreAsync(ore);
+            SaveMsg = $"✓ {ore.Ore:F1}h salvate con successo";
+            SaveError = false;
+            NuovaOra = new CommessaOreForm();
+            ShowValidation = false;
+            await LoadOre();
+        }
+        catch (Exception ex)
+        {
+            SaveMsg = "Errore: " + ex.Message;
+            SaveError = true;
+        }
+        finally
+        {
+            Saving = false;
+        }
+
+        await Task.Delay(3000);
+        SaveMsg = "";
+    }
+
+    private void StartEdit(CommessaOre ore)
+    {
+        EditingId = ore.Id;
+        EditModel = new CommessaOreForm
+        {
+            CommessaId = ore.CommessaId,
+            Data = ore.Data,
+            Ore = ore.Ore,
+            TipoAttivita = ore.TipoAttivita,
+            Descrizione = ore.Descrizione ?? ""
+        };
+    }
+
+    private async Task SaveEdit(CommessaOre ore)
+    {
+        if (EditModel == null) return;
+        ore.CommessaId = EditModel.CommessaId;
+        ore.Ore = EditModel.Ore;
+        ore.TipoAttivita = EditModel.TipoAttivita;
+        ore.Descrizione = EditModel.Descrizione;
+        await CommesseService.UpdateOreAsync(ore);
+        EditingId = 0;
+        EditModel = null;
+        await LoadOre();
+    }
+
+    private void CancelEdit() { EditingId = 0; EditModel = null; }
+
+    private async Task DeleteOre(int id)
+    {
+        await CommesseService.DeleteOreAsync(id);
+        await LoadOre();
+    }
+
+    private void ClearFilter() => FiltroData = null;
+
+    private string GetTipoLabel(TipoAttivita tipo) => tipo switch
+    {
+        TipoAttivita.Ordinario => "Ordinario",
+        TipoAttivita.Straordinario => "Straordinario",
+        TipoAttivita.Trasferta => "Trasferta",
+        TipoAttivita.Formazione => "Formazione",
+        TipoAttivita.Riunione => "Riunione",
+        _ => tipo.ToString()
+    };
+
+    private string GetTipoBadgeClass(TipoAttivita tipo) => tipo switch
+    {
+        TipoAttivita.Straordinario => "badge-extra",
+        TipoAttivita.Trasferta => "badge-travel",
+        TipoAttivita.Formazione => "badge-training",
+        TipoAttivita.Riunione => "badge-meeting",
+        _ => "badge-ordinary"
+    };
+
+    private class CommessaOreForm
+    {
+        public int CommessaId { get; set; } = 0;
+        public DateOnly Data { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        [System.ComponentModel.DataAnnotations.Range(0.5, 24, ErrorMessage = "Le ore devono essere tra 0.5 e 24")]
+        public decimal Ore { get; set; } = 8m;
+        public TipoAttivita TipoAttivita { get; set; } = TipoAttivita.Ordinario;
+        public string Descrizione { get; set; } = "";
+    }
+}

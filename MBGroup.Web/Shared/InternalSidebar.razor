@@ -1,0 +1,91 @@
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<aside class="internal-sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <span class="sidebar-logo">MB<span class="text-accent">Group</span></span>
+        <span class="sidebar-subtitle">Portale Dipendenti</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section">
+            <span class="sidebar-section-title">Principale</span>
+            <ul>
+                <li>
+                    <NavLink class="sidebar-link" href="/internal/dashboard" Match="NavLinkMatch.All">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="sidebar-link" href="/internal/timbrature">
+                        <i class="fas fa-clock"></i>
+                        <span>Timbrature</span>
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink class="sidebar-link" href="/internal/commesse">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Ore Commesse</span>
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+
+        @if (Auth.IsManager)
+        {
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Gestione</span>
+                <ul>
+                    <li>
+                        <NavLink class="sidebar-link" href="/internal/presenze">
+                            <i class="fas fa-users"></i>
+                            <span>Presenze Team</span>
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink class="sidebar-link" href="/internal/report">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Report</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        }
+
+        @if (Auth.IsAdmin)
+        {
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Amministrazione</span>
+                <ul>
+                    <li>
+                        <NavLink class="sidebar-link" href="/internal/admin/commesse">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Gestione Commesse</span>
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink class="sidebar-link" href="/internal/admin/dipendenti">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Dipendenti</span>
+                        </NavLink>
+                    </li>
+                </ul>
+            </div>
+        }
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/" class="sidebar-link text-muted-light">
+            <i class="fas fa-globe"></i>
+            <span>Sito Pubblico</span>
+        </a>
+    </div>
+</aside>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += (s, e) => StateHasChanged();
+    }
+}

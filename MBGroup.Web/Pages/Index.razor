@@ -1,0 +1,320 @@
+@page "/"
+@layout MainLayout
+
+<PageTitle>MB Group Engineering & Services - Home</PageTitle>
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-particles"></div>
+    <div class="container hero-content">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-7">
+                <span class="hero-badge">Engineering & Services dal 1987</span>
+                <h1 class="hero-title">
+                    Soluzioni ingegneristiche per<br/>
+                    <span class="text-accent">l'energia del futuro</span>
+                </h1>
+                <p class="hero-subtitle">
+                    MB Group fornisce servizi di ingegneria multidisciplinare e project management
+                    per i settori Oil & Gas, Chemical, Biogas, Renewable Energy e Hydrogen.
+                    Dal processo alla costruzione, siamo il vostro partner di fiducia.
+                </p>
+                <div class="hero-actions">
+                    <a href="/servizi" class="btn btn-accent btn-lg me-3">
+                        <i class="fas fa-cogs me-2"></i>I Nostri Servizi
+                    </a>
+                    <a href="/contatti" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-paper-plane me-2"></i>Contattaci
+                    </a>
+                </div>
+                <div class="hero-stats row mt-5 g-3">
+                    <div class="col-auto">
+                        <div class="hero-stat">
+                            <span class="hero-stat-number">37+</span>
+                            <span class="hero-stat-label">Anni di esperienza</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="hero-stat">
+                            <span class="hero-stat-number">200+</span>
+                            <span class="hero-stat-label">Progetti completati</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="hero-stat">
+                            <span class="hero-stat-number">50+</span>
+                            <span class="hero-stat-label">Professionisti</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-scroll-indicator">
+        <span>Scorri</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- NEWS TICKER -->
+<div class="news-ticker">
+    <div class="container">
+        <div class="ticker-wrap">
+            <span class="ticker-label"><i class="fas fa-bullhorn me-2"></i>NEWS</span>
+            <div class="ticker-content">
+                <span>MB Group e Saipem: accordo quadro di ingegneria multidisciplinare triennale &nbsp;•&nbsp;</span>
+                <span>Nuovo progetto EPC per impianto Biogas/Biomethane in Europa &nbsp;•&nbsp;</span>
+                <span>MB Group espande le competenze nell'Hydrogen Economy &nbsp;•&nbsp;</span>
+                <span>Completato impianto BioLNG in collaborazione con partner internazionali</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SETTORI SECTION -->
+<section class="section-padding bg-light-gray">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">Settori di Competenza</span>
+            <h2 class="section-title">I Nostri Mercati</h2>
+            <p class="section-subtitle">Presenza consolidata nei principali settori energetici e industriali</p>
+        </div>
+        <div class="row g-4">
+            @foreach (var settore in Settori)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a href="@settore.Link" class="sector-card">
+                        <div class="sector-icon">
+                            <i class="@settore.Icon"></i>
+                        </div>
+                        <h5 class="sector-title">@settore.Name</h5>
+                        <p class="sector-desc">@settore.Description</p>
+                        <span class="sector-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- SERVIZI SECTION -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <span class="section-tag">Cosa Facciamo</span>
+                <h2 class="section-title">Servizi Integrati di Engineering</h2>
+                <p class="text-muted mb-4">
+                    MB Group offre una gamma completa di servizi ingegneristici,
+                    dall'analisi di processo fino alla gestione completa del progetto EPC/EPCM.
+                </p>
+                <div class="service-features">
+                    <div class="service-feature-item">
+                        <i class="fas fa-check-circle text-accent me-3"></i>
+                        <span>Project Management & Engineering</span>
+                    </div>
+                    <div class="service-feature-item">
+                        <i class="fas fa-check-circle text-accent me-3"></i>
+                        <span>Procurement & Construction</span>
+                    </div>
+                    <div class="service-feature-item">
+                        <i class="fas fa-check-circle text-accent me-3"></i>
+                        <span>HSE & Quality Assurance</span>
+                    </div>
+                    <div class="service-feature-item">
+                        <i class="fas fa-check-circle text-accent me-3"></i>
+                        <span>Commissioning & Start-up</span>
+                    </div>
+                    <div class="service-feature-item">
+                        <i class="fas fa-check-circle text-accent me-3"></i>
+                        <span>Consulenza Tecnica Specialistica</span>
+                    </div>
+                </div>
+                <a href="/servizi" class="btn btn-primary mt-4">
+                    Scopri tutti i servizi <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+            <div class="col-lg-7">
+                <div class="services-grid">
+                    @foreach (var svc in Services)
+                    {
+                        <div class="service-box">
+                            <div class="service-box-icon"><i class="@svc.Icon"></i></div>
+                            <div>
+                                <h6 class="service-box-title">@svc.Title</h6>
+                                <p class="service-box-desc">@svc.Desc</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HIGHLIGHT BIOGAS SECTION -->
+<section class="section-padding bg-navy text-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="section-tag-light">Focus Tecnologico</span>
+                <h2 class="text-white mb-4">Leader nel Biogas &amp; Biomethane</h2>
+                <p class="text-muted-light mb-4">
+                    MB Group è protagonista nei progetti EPC e EPCM per impianti Biogas/Biomethane
+                    in tutta Europa, applicando le più avanzate tecnologie di upgrading.
+                </p>
+                <div class="row g-3 mb-4">
+                    @foreach (var tech in BioTech)
+                    {
+                        <div class="col-6">
+                            <div class="tech-badge">
+                                <i class="fas fa-check me-2"></i>@tech
+                            </div>
+                        </div>
+                    }
+                </div>
+                <a href="/settori#biogas" class="btn btn-accent">
+                    Scopri le nostre capacità <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="highlight-stats">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="highlight-stat-card">
+                                <span class="highlight-number">50+</span>
+                                <span class="highlight-label">Impianti Biogas</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="highlight-stat-card">
+                                <span class="highlight-number">Europe</span>
+                                <span class="highlight-label">Presenza Internazionale</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="highlight-stat-card">
+                                <span class="highlight-number">500+</span>
+                                <span class="highlight-label">MW Installati</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="highlight-stat-card">
+                                <span class="highlight-number">EPC</span>
+                                <span class="highlight-label">Full Service</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SAIPEM PARTNERSHIP -->
+<section class="section-padding">
+    <div class="container">
+        <div class="partnership-banner">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="section-tag">Partnership Strategica</span>
+                    <h3 class="mt-2 mb-3">Accordo Quadro con Saipem</h3>
+                    <p class="text-muted mb-0">
+                        MB Group e Saipem hanno firmato un accordo quadro triennale di ingegneria multidisciplinare,
+                        confermando la nostra posizione di eccellenza nel mercato EPC internazionale.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <a href="/progetti" class="btn btn-primary">
+                        <i class="fas fa-handshake me-2"></i>I Nostri Progetti
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SEDI -->
+<section class="section-padding bg-light-gray">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <span class="section-tag">Presenza Internazionale</span>
+            <h2 class="section-title">Le Nostre Sedi</h2>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="office-card">
+                    <div class="office-flag">🇮🇹</div>
+                    <h5>Sede Principale – Italia</h5>
+                    <p class="text-muted">
+                        Viale Isaac Newton, 32<br/>
+                        48124 Ravenna (RA)<br/>
+                        Emilia-Romagna, Italia
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-phone me-2 text-accent"></i>+39 0544 407291<br/>
+                        <i class="fas fa-envelope me-2 text-accent"></i>info@mb-group.it
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="office-card">
+                    <div class="office-flag">🇳🇱</div>
+                    <h5>Sede Olanda</h5>
+                    <p class="text-muted">
+                        Willemstad<br/>
+                        Paesi Bassi
+                    </p>
+                    <p class="text-muted">
+                        <i class="fas fa-envelope me-2 text-accent"></i>info@mb-group.it
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2 class="text-white mb-3">Pronti a collaborare con voi</h2>
+        <p class="text-muted-light mb-4">Contattaci per discutere il vostro prossimo progetto</p>
+        <a href="/contatti" class="btn btn-accent btn-lg">
+            <i class="fas fa-paper-plane me-2"></i>Inizia la conversazione
+        </a>
+    </div>
+</section>
+
+@code {
+    private record SectorItem(string Name, string Icon, string Description, string Link);
+    private record ServiceItem(string Title, string Icon, string Desc);
+
+    private List<SectorItem> Settori = new()
+    {
+        new("Oil & Gas", "fas fa-oil-well", "Ingegneria di processo e gestione progetti per raffinerie e impianti petroliferi", "/settori#oil-gas"),
+        new("Chemical", "fas fa-flask", "Plant design e safety analysis per l'industria chimica e petrolchimica", "/settori#chemical"),
+        new("Biogas", "fas fa-leaf", "EPC completo per impianti biogas, biomethane e BioLNG", "/settori#biogas"),
+        new("Renewable Energy", "fas fa-solar-panel", "Engineering per fotovoltaico, eolico e sistemi di accumulo energia", "/settori#renewable"),
+        new("Nuclear", "fas fa-atom", "Supporto tecnico specializzato per il settore nucleare", "/settori#nuclear"),
+        new("Hydrogen", "fas fa-fire", "Progettazione impianti H₂ green, blue e grey", "/settori#hydrogen"),
+        new("Steelworks", "fas fa-industry", "Ingegneria per impianti siderurgici e acciaierie", "/settori#steelworks"),
+        new("Circular Economy", "fas fa-recycle", "Soluzioni per economia circolare e gestione rifiuti industriali", "/settori#circular"),
+    };
+
+    private List<ServiceItem> Services = new()
+    {
+        new("Project Management", "fas fa-project-diagram", "Gestione completa di progetti EPC e EPCM"),
+        new("Process Engineering", "fas fa-cogs", "Analisi e ottimizzazione di processo"),
+        new("Procurement", "fas fa-truck", "Approvvigionamento e gestione fornitori"),
+        new("HSE", "fas fa-hard-hat", "Health, Safety & Environment consulting"),
+        new("Commissioning", "fas fa-power-off", "Avviamento e messa in servizio impianti"),
+        new("As-Built", "fas fa-drafting-compass", "Documentazione tecnica e as-built drawing"),
+    };
+
+    private List<string> BioTech = new()
+    {
+        "Membrane Technology", "PSA / V-PSA", "Ammine Washing", "Water Scrubbing",
+        "BioLNG", "CO₂ Liquefaction"
+    };
+}

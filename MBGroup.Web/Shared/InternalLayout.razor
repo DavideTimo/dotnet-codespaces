@@ -1,0 +1,23 @@
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@if (!Auth.IsAuthenticated)
+{
+    <RedirectToLogin />
+}
+else
+{
+    <div class="internal-wrapper">
+        <InternalSidebar />
+        <div class="internal-main">
+            <InternalTopBar />
+            <div class="internal-content">
+                @Body
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] public Task<AuthenticationState>? AuthState { get; set; }
+}

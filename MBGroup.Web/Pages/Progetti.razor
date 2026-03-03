@@ -1,0 +1,122 @@
+@page "/progetti"
+@layout MainLayout
+
+<PageTitle>Progetti - MB Group Engineering & Services</PageTitle>
+
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Progetti</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title">I Nostri Progetti</h1>
+        <p class="page-hero-subtitle">Una selezione dei progetti di riferimento</p>
+    </div>
+</section>
+
+<!-- PARTNERSHIP SAIPEM -->
+<section class="section-padding">
+    <div class="container">
+        <div class="partnership-banner mb-5">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="section-tag">Partnership Strategica</span>
+                    <h3 class="mt-2 mb-3">Accordo Quadro Saipem – MB Group</h3>
+                    <p class="text-muted mb-0">
+                        Nel 2024, MB Group e Saipem hanno firmato un accordo quadro triennale di ingegneria
+                        multidisciplinare. L'accordo consolida MB Group come partner tecnico di eccellenza
+                        nell'EPC internazionale, operando in settori come Oil & Gas, Biogas e Renewables.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <span class="badge bg-accent fs-6 p-2">Durata 3 anni</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTER -->
+        <div class="project-filters mb-4">
+            @foreach (var filter in Filters)
+            {
+                <button class="filter-btn @(ActiveFilter == filter ? "active" : "")"
+                        @onclick="() => ActiveFilter = filter">@filter</button>
+            }
+        </div>
+
+        <div class="row g-4">
+            @foreach (var p in Progetti.Where(p => ActiveFilter == "Tutti" || p.Settore == ActiveFilter))
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="project-card">
+                        <div class="project-card-header">
+                            <span class="project-settore-badge">@p.Settore</span>
+                            <span class="project-stato @GetStatoClass(p.Stato)">@p.Stato</span>
+                        </div>
+                        <h5 class="project-title">@p.Nome</h5>
+                        <p class="project-client"><i class="fas fa-building me-1 text-accent"></i>@p.Cliente</p>
+                        <p class="project-desc">@p.Descrizione</p>
+                        <div class="project-meta">
+                            <span><i class="fas fa-cog me-1"></i>@p.Tipo</span>
+                            <span><i class="fas fa-map-marker-alt me-1"></i>@p.Luogo</span>
+                        </div>
+                        <div class="project-tags">
+                            @foreach (var tag in p.Tags)
+                            {
+                                <span class="project-tag">@tag</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private string ActiveFilter = "Tutti";
+    private List<string> Filters = new() { "Tutti", "Oil & Gas", "Biogas", "Renewable", "Chemical" };
+
+    private string GetStatoClass(string stato) => stato switch
+    {
+        "Completato" => "stato-completed",
+        "In Corso" => "stato-active",
+        _ => "stato-default"
+    };
+
+    private record ProgettoItem(
+        string Nome, string Cliente, string Descrizione, string Settore,
+        string Tipo, string Luogo, string Stato, List<string> Tags);
+
+    private List<ProgettoItem> Progetti = new()
+    {
+        new("Impianto Biogas 1MW – Emilia", "Agrienergia Srl",
+            "Progettazione EPC completo di impianto biogas da digestione anaerobica con upgrading a biometano.",
+            "Biogas", "EPC", "Ravenna, IT", "In Corso", new() { "Biogas", "EPC", "Upgrading" }),
+        new("Raffineria Adriatica – Revamping", "Adriatic Refining SpA",
+            "Studio di fattibilità e basic engineering per il revamping dell'unità di distillazione.",
+            "Oil & Gas", "FEED", "Venezia, IT", "Completato", new() { "Oil & Gas", "Revamping", "FEED" }),
+        new("Parco Fotovoltaico 50MW", "SunPower Italia",
+            "Ingegneria di dettaglio per parco fotovoltaico utility-scale con sistema BESS integrato.",
+            "Renewable", "EPC", "Puglia, IT", "Completato", new() { "Solar", "BESS", "Renewable" }),
+        new("Impianto BioLNG", "GreenGas Europa",
+            "Progettazione impianto di liquefazione del biometano per produzione BioLNG.",
+            "Biogas", "EPCM", "Olanda", "In Corso", new() { "BioLNG", "LNG", "Biogas" }),
+        new("Upgrading PSA Biogas", "Italian Biogas Srl",
+            "Engineering per sezione upgrading biogas con tecnologia PSA ad alte prestazioni.",
+            "Biogas", "Detailed Engineering", "Lombardia, IT", "Completato", new() { "PSA", "Upgrading", "Biometano" }),
+        new("Distillazione Chimica Specialità", "ChemIta SpA",
+            "Basic e detailed engineering per nuova colonna di distillazione prodotti chimici.",
+            "Chemical", "EPC", "Marghera, IT", "In Corso", new() { "Chemical", "Distillation", "Process" }),
+        new("Hydrogen Refueling Station", "H2 Mobility IT",
+            "Engineering per stazione di rifornimento idrogeno da rete 700 bar.",
+            "Oil & Gas", "Detailed Engineering", "Milano, IT", "Completato", new() { "H2", "Hydrogen", "Mobility" }),
+        new("CO₂ Liquefaction Plant", "CarbonCapture Eu",
+            "Progettazione impianto di liquefazione CO₂ da upgrading biometano.",
+            "Biogas", "EPCM", "Germania", "In Corso", new() { "CO₂", "CCS", "BioLNG" }),
+        new("Petrolchimico HAZOP Review", "PetroMed Refining",
+            "HAZOP study e SIL assessment per unità cracking di complesso petrolchimico.",
+            "Chemical", "Consulting", "Sicilia, IT", "Completato", new() { "HAZOP", "SIL", "Safety" }),
+    };
+}

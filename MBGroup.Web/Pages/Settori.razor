@@ -1,0 +1,117 @@
+@page "/settori"
+@layout MainLayout
+
+<PageTitle>Settori - MB Group Engineering & Services</PageTitle>
+
+<section class="page-hero">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Settori</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title">Settori di Competenza</h1>
+        <p class="page-hero-subtitle">Presenza consolidata nei principali mercati energetici e industriali</p>
+    </div>
+</section>
+
+@foreach (var settore in Settori)
+{
+    <section class="section-padding @(settore.BgClass)" id="@settore.Id">
+        <div class="container">
+            <div class="row align-items-center g-5 @(settore.Reverse ? "flex-lg-row-reverse" : "")">
+                <div class="col-lg-6">
+                    <div class="sector-detail-icon">
+                        <i class="@settore.Icon"></i>
+                    </div>
+                    <span class="section-tag">@settore.Tag</span>
+                    <h2 class="section-title">@settore.Title</h2>
+                    <p class="text-muted mb-4">@settore.Description</p>
+                    <div class="row g-2">
+                        @foreach (var cap in settore.Capabilities)
+                        {
+                            <div class="col-12">
+                                <div class="capability-item">
+                                    <i class="fas fa-arrow-right text-accent me-2"></i>
+                                    <span>@cap</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="sector-metrics">
+                        @foreach (var m in settore.Metrics)
+                        {
+                            <div class="sector-metric-item">
+                                <span class="sector-metric-value">@m.Value</span>
+                                <span class="sector-metric-label">@m.Label</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private record MetricItem(string Value, string Label);
+    private record SectorDetail(
+        string Id, string Title, string Tag, string Icon,
+        string Description, List<string> Capabilities,
+        List<MetricItem> Metrics, string BgClass, bool Reverse);
+
+    private List<SectorDetail> Settori = new()
+    {
+        new("oil-gas", "Oil & Gas", "Settore Energetico", "fas fa-oil-well",
+            "MB Group vanta una lunga esperienza nell'ingegneria per il settore Oil & Gas, " +
+            "fornendo servizi di progettazione multidisciplinare per raffinerie, impianti upstream, " +
+            "midstream e downstream. Il nostro team garantisce elevati standard di sicurezza e qualità.",
+            new() { "FEED e Detailed Engineering", "Revamping e Upgrading impianti", "Stress Analysis tubazioni",
+                    "HAZOP e SIL Assessment", "Commissioning e Start-up", "Inspection & Maintenance Engineering" },
+            new() { new("20+", "anni nel settore"), new("100+", "progetti EPC"), new("5", "continenti") },
+            "", false),
+
+        new("chemical", "Chemical & Petrochemical", "Industria Chimica", "fas fa-flask",
+            "Nel settore chimico e petrolchimico, MB Group offre competenze specialistiche di process engineering " +
+            "e plant design, incluse le analisi di sicurezza ATEX e le valutazioni di rischio per impianti ad alto rischio.",
+            new() { "Process Design & Simulation", "Plant Layout 3D", "ATEX Classification", "Safety Studies",
+                    "Environmental Engineering", "Energy Efficiency Optimization" },
+            new() { new("50+", "impianti chimici"), new("ISO 9001", "certificato"), new("ATEX", "competenza") },
+            "bg-light-gray", true),
+
+        new("biogas", "Biogas & Biomethane", "Green Energy", "fas fa-leaf",
+            "MB Group è uno dei leader europei nella progettazione EPC e EPCM di impianti per la produzione " +
+            "di biogas, biometano e BioLNG. Operiamo con tutte le principali tecnologie di upgrading del biogas.",
+            new() { "Membrane Technology", "PSA e V-PSA", "Ammine Washing", "Water Scrubbing",
+                    "BioLNG e CO₂ Liquefazione", "Digestori anaerobici" },
+            new() { new("50+", "impianti biogas"), new("500+", "MW installati"), new("Europa", "presenza internazionale") },
+            "", false),
+
+        new("renewable", "Renewable Energy", "Energia Rinnovabile", "fas fa-solar-panel",
+            "Supportiamo lo sviluppo delle energie rinnovabili con servizi ingegneristici per impianti " +
+            "fotovoltaici, eolici e di accumulo energia, contribuendo alla transizione energetica.",
+            new() { "Solar Farm Engineering", "Wind Plant Design", "BESS Integration", "Grid Connection Studies",
+                    "Environmental Impact Assessment", "O&M Optimization" },
+            new() { new("200+", "MW fotovoltaico"), new("Clean", "energy leader"), new("2050", "net zero target") },
+            "bg-light-gray", true),
+
+        new("nuclear", "Nuclear", "Energia Nucleare", "fas fa-atom",
+            "MB Group fornisce supporto tecnico specializzato per il settore nucleare, con particolare " +
+            "attenzione alle attività di smantellamento e alla gestione dei rifiuti radioattivi.",
+            new() { "Decommissioning Engineering", "Radiation Protection Studies", "Nuclear Waste Management",
+                    "Safety Analysis", "Regulatory Compliance" },
+            new() { new("High", "safety standards"), new("Specialized", "expertise"), new("Regulated", "sector") },
+            "", false),
+
+        new("hydrogen", "Hydrogen Economy", "Idrogeno", "fas fa-fire",
+            "MB Group è attivo nello sviluppo della filiera dell'idrogeno, progettando impianti per " +
+            "la produzione, stoccaggio e distribuzione di idrogeno verde, blu e grigio.",
+            new() { "Green Hydrogen Production", "Blue Hydrogen & CCS", "Hydrogen Storage Engineering",
+                    "H₂ Refueling Stations", "Fuel Cell Integration", "H₂ Safety Studies" },
+            new() { new("Future", "energy carrier"), new("Green H₂", "specialist"), new("EU", "funded projects") },
+            "bg-light-gray", true),
+    };
+}

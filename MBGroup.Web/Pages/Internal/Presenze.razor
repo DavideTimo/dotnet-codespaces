@@ -1,0 +1,178 @@
+@page "/internal/presenze"
+@layout InternalLayout
+@inject AuthService Auth
+@inject TimbratureService TimbratureService
+
+<PageTitle>Presenze Team - MB Group Portale</PageTitle>
+
+@if (!Auth.IsManager)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-lock me-2"></i>Accesso riservato a Manager e Amministratori.
+    </div>
+    return;
+}
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h6><i class="fas fa-users me-2"></i>Presenze Oggi – @DateTime.Today.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))</h6>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-success">@Presenti Presenti</span>
+                    <span class="badge bg-danger">@(Summary.Count - Presenti) Assenti</span>
+                </div>
+            </div>
+            <div class="dashboard-card-body">
+                @if (Summary.Any())
+                {
+                    <div class="presence-table">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Dipendente</th>
+                                    <th>Reparto</th>
+                                    <th>Stato</th>
+                                    <th>Prima timbratura</th>
+                                    <th>Ultima timbratura</th>
+                                    <th>Ore lavorate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in Summary.OrderByDescending(x => x.IsPresente))
+                                {
+                                    <tr class="@(s.IsPresente ? "table-success-soft" : "")">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar-sm me-2">
+                                                    @s.Employee.FirstName[0]@s.Employee.LastName[0]
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium">@s.Employee.FullName</div>
+                                                    <small class="text-muted">@s.Employee.Role</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark">@s.Employee.Department</span></td>
+                                        <td>
+                                            @if (s.IsPresente)
+                                            {
+                                                <span class="status-badge-sm status-present">
+                                                    <i class="fas fa-circle me-1"></i>Presente
+                                                </span>
+                                            }
+                                            else if (s.Timbrature.Any())
+                                            {
+                                                <span class="status-badge-sm status-absent">
+                                                    <i class="fas fa-circle me-1"></i>Uscito
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge-sm status-absent">
+                                                    <i class="fas fa-circle me-1"></i>Non presente
+                                                </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @(s.Timbrature.Any()
+                                                ? s.Timbrature.Min(t => t.DataOra).ToString("HH:mm")
+                                                : "–")
+                                        </td>
+                                        <td>
+                                            @(s.Timbrature.Any()
+                                                ? s.Timbrature.Max(t => t.DataOra).ToString("HH:mm")
+                                                : "–")
+                                        </td>
+                                        <td>
+                                            <span class="@(s.OreOggi.TotalHours >= 8 ? "text-success fw-bold" : "text-muted")">
+                                                @(s.OreOggi.TotalHours > 0 ? s.OreOggi.ToString(@"h\:mm") : "–")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-users text-muted"></i>
+                        <p class="text-muted">Nessun dato disponibile</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMELINE PRESENZE -->
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h6><i class="fas fa-stream me-2"></i>Timeline Timbrature Oggi</h6>
+            </div>
+            <div class="dashboard-card-body">
+                @foreach (var s in Summary.Where(x => x.Timbrature.Any()).OrderBy(x => x.Timbrature.Min(t => t.DataOra)))
+                {
+                    <div class="timeline-employee-row mb-3">
+                        <div class="timeline-emp-name">@s.Employee.FirstName</div>
+                        <div class="timeline-bar-container">
+                            @foreach (var t in s.Timbrature.OrderBy(x => x.DataOra))
+                            {
+                                var pct = GetTimePercent(t.DataOra);
+                                <div class="timeline-event @GetTimelineDotClass(t.Tipo)"
+                                     style="left:@pct%"
+                                     title="@GetTipoLabel(t.Tipo) @t.DataOra.ToString("HH:mm")">
+                                </div>
+                            }
+                        </div>
+                        <div class="timeline-ore-label">
+                            @(s.OreOggi.TotalHours > 0 ? s.OreOggi.ToString(@"h\:mm") : "–")
+                        </div>
+                    </div>
+                }
+                <div class="timeline-axis">
+                    <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<TimbraturaSummary> Summary = new();
+    private int Presenti = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Summary = await TimbratureService.GetAllTodayTimbratureAsync();
+        Presenti = Summary.Count(s => s.IsPresente);
+    }
+
+    private double GetTimePercent(DateTime dt)
+    {
+        var start = new TimeSpan(8, 0, 0);
+        var end = new TimeSpan(18, 0, 0);
+        var current = dt.TimeOfDay;
+        if (current < start) return 0;
+        if (current > end) return 100;
+        return (current - start).TotalMinutes / (end - start).TotalMinutes * 100;
+    }
+
+    private string GetTimelineDotClass(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "timeline-dot-ingresso",
+        Timbratura.TipoTimbratura.Uscita => "timeline-dot-uscita",
+        _ => "timeline-dot-pausa"
+    };
+
+    private string GetTipoLabel(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "Ingresso",
+        Timbratura.TipoTimbratura.Uscita => "Uscita",
+        Timbratura.TipoTimbratura.PausaInizio => "Inizio Pausa",
+        Timbratura.TipoTimbratura.PausaFine => "Fine Pausa",
+        _ => tipo.ToString()
+    };
+}

@@ -1,0 +1,284 @@
+@page "/internal/dashboard"
+@layout InternalLayout
+@inject AuthService Auth
+@inject TimbratureService TimbratureService
+@inject CommesseService CommesseService
+@inject NavigationManager Nav
+
+<PageTitle>Dashboard - MB Group Portale</PageTitle>
+
+@if (Auth.CurrentEmployee != null)
+{
+    <!-- WELCOME HEADER -->
+    <div class="dashboard-welcome">
+        <div class="row align-items-center">
+            <div class="col">
+                <h4 class="mb-1">Buongiorno, <strong>@Auth.CurrentEmployee.FirstName</strong>! 👋</h4>
+                <p class="text-muted mb-0">
+                    @DateTime.Now.ToString("dddd, d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))
+                    &nbsp;–&nbsp; @DateTime.Now.ToString("HH:mm")
+                </p>
+            </div>
+            <div class="col-auto">
+                <div class="employee-badge">
+                    <i class="fas fa-id-badge me-2 text-accent"></i>
+                    <span>@Auth.CurrentEmployee.Department</span>
+                    <span class="badge bg-accent ms-2">@Auth.CurrentEmployee.Role</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS TIMBRATURA -->
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="timbratura-quick-card">
+                <h5 class="mb-3"><i class="fas fa-clock me-2 text-accent"></i>Timbratura Rapida</h5>
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <button class="btn btn-success btn-timbratura" @onclick="() => QuickTimbratura(Timbratura.TipoTimbratura.Ingresso)">
+                            <i class="fas fa-sign-in-alt me-2"></i>Ingresso
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-danger btn-timbratura" @onclick="() => QuickTimbratura(Timbratura.TipoTimbratura.Uscita)">
+                            <i class="fas fa-sign-out-alt me-2"></i>Uscita
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-warning btn-timbratura" @onclick="() => QuickTimbratura(Timbratura.TipoTimbratura.PausaInizio)">
+                            <i class="fas fa-coffee me-2"></i>Inizio Pausa
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-warning btn-timbratura" @onclick="() => QuickTimbratura(Timbratura.TipoTimbratura.PausaFine)">
+                            <i class="fas fa-redo me-2"></i>Fine Pausa
+                        </button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(TimbraturMsg))
+                    {
+                        <div class="col-auto">
+                            <span class="badge bg-success fs-6 p-2">
+                                <i class="fas fa-check me-1"></i>@TimbraturMsg
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon-blue"><i class="fas fa-clock"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value">@OreOggi.ToString(@"h\:mm")</span>
+                    <span class="kpi-label">Ore oggi</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon-green"><i class="fas fa-calendar-week"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value">@OreSettimana.ToString(@"h\:mm")</span>
+                    <span class="kpi-label">Ore settimana</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon-orange"><i class="fas fa-clipboard-list"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value">@CommesseAttive</span>
+                    <span class="kpi-label">Commesse attive</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card">
+                <div class="kpi-icon kpi-icon-purple"><i class="fas fa-chart-line"></i></div>
+                <div class="kpi-content">
+                    <span class="kpi-value">@OreCommessaSettimana.ToString("F1")h</span>
+                    <span class="kpi-label">Ore su commesse (sett.)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- TIMBRATURE OGGI -->
+        <div class="col-lg-6">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h6><i class="fas fa-list-ul me-2"></i>Timbrature di Oggi</h6>
+                    <a href="/internal/timbrature" class="btn btn-sm btn-outline-secondary">
+                        Vedi tutte <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="dashboard-card-body">
+                    @if (TodayTimbrature.Any())
+                    {
+                        <div class="timbratura-timeline">
+                            @foreach (var t in TodayTimbrature)
+                            {
+                                <div class="timeline-item">
+                                    <div class="timeline-dot @GetTimbraturaDotClass(t.Tipo)"></div>
+                                    <div class="timeline-content">
+                                        <span class="timeline-time">@t.DataOra.ToString("HH:mm")</span>
+                                        <span class="timeline-label">@GetTipoLabel(t.Tipo)</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-clock-rotate-left text-muted"></i>
+                            <p class="text-muted">Nessuna timbratura oggi</p>
+                            <p class="text-muted small">Usa i pulsanti sopra per timbrare</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ORE PER COMMESSA SETTIMANA -->
+        <div class="col-lg-6">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h6><i class="fas fa-chart-pie me-2"></i>Ore Commesse – Questa Settimana</h6>
+                    <a href="/internal/commesse" class="btn btn-sm btn-outline-secondary">
+                        Gestisci <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="dashboard-card-body">
+                    @if (OrePerCommessa.Any())
+                    {
+                        @foreach (var kv in OrePerCommessa)
+                        {
+                            var perc = OreCommessaSettimana > 0 ? (double)(kv.Value / (decimal)OreCommessaSettimana) * 100 : 0;
+                            <div class="commessa-ore-row mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small class="fw-medium text-truncate me-2">@kv.Key</small>
+                                    <small class="text-muted text-nowrap">@kv.Value.ToString("F1")h</small>
+                                </div>
+                                <div class="progress" style="height:6px">
+                                    <div class="progress-bar bg-accent" style="width:@((int)perc)%"></div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard text-muted"></i>
+                            <p class="text-muted">Nessuna ora registrata questa settimana</p>
+                            <a href="/internal/commesse" class="btn btn-sm btn-accent mt-2">
+                                Registra ore
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- RIEPILOGO SETTIMANALE PRESENZE -->
+        <div class="col-12">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h6><i class="fas fa-calendar-week me-2"></i>Presenze Settimanali</h6>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="week-presence-grid">
+                        @foreach (var day in WeekPresence)
+                        {
+                            <div class="week-day-item @(day.Key == DateOnly.FromDateTime(DateTime.Today) ? "today" : "")">
+                                <span class="day-name">@day.Key.ToString("ddd", new System.Globalization.CultureInfo("it-IT"))</span>
+                                <span class="day-date">@day.Key.Day</span>
+                                <div class="day-hours @(day.Value.TotalHours > 0 ? "has-hours" : "")">
+                                    @if (day.Value.TotalHours > 0)
+                                    {
+                                        <span>@day.Value.ToString(@"h\:mm")</span>
+                                    }
+                                    else if (day.Key < DateOnly.FromDateTime(DateTime.Today))
+                                    {
+                                        <span class="text-muted">–</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">–</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Timbratura> TodayTimbrature = new();
+    private TimeSpan OreOggi = TimeSpan.Zero;
+    private TimeSpan OreSettimana = TimeSpan.Zero;
+    private int CommesseAttive = 0;
+    private decimal OreCommessaSettimana = 0;
+    private Dictionary<string, decimal> OrePerCommessa = new();
+    private Dictionary<DateOnly, TimeSpan> WeekPresence = new();
+    private string TimbraturMsg = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        if (Auth.CurrentEmployee == null) return;
+        var empId = Auth.CurrentEmployee.Id;
+
+        TodayTimbrature = await TimbratureService.GetTodayTimbratureAsync(empId);
+        OreOggi = await TimbratureService.GetOreGiornaliereAsync(empId);
+        WeekPresence = await TimbratureService.GetRiepilogoSettimanaleAsync(empId);
+        OreSettimana = WeekPresence.Values.Aggregate(TimeSpan.Zero, (a, b) => a + b);
+
+        var commesse = await CommesseService.GetCommesseAttiveAsync();
+        CommesseAttive = commesse.Count;
+
+        OrePerCommessa = await CommesseService.GetRiepilogoOreSettimanaAsync(empId);
+        OreCommessaSettimana = OrePerCommessa.Values.Sum();
+    }
+
+    private async Task QuickTimbratura(Timbratura.TipoTimbratura tipo)
+    {
+        if (Auth.CurrentEmployee == null) return;
+        await TimbratureService.AddTimbratura(Auth.CurrentEmployee.Id, tipo);
+        TimbraturMsg = $"{GetTipoLabel(tipo)} registrata alle {DateTime.Now:HH:mm}";
+        await LoadData();
+        await Task.Delay(3000);
+        TimbraturMsg = "";
+    }
+
+    private string GetTipoLabel(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "Ingresso",
+        Timbratura.TipoTimbratura.Uscita => "Uscita",
+        Timbratura.TipoTimbratura.PausaInizio => "Inizio Pausa",
+        Timbratura.TipoTimbratura.PausaFine => "Fine Pausa",
+        _ => tipo.ToString()
+    };
+
+    private string GetTimbraturaDotClass(Timbratura.TipoTimbratura tipo) => tipo switch
+    {
+        Timbratura.TipoTimbratura.Ingresso => "dot-success",
+        Timbratura.TipoTimbratura.Uscita => "dot-danger",
+        Timbratura.TipoTimbratura.PausaInizio => "dot-warning",
+        Timbratura.TipoTimbratura.PausaFine => "dot-warning",
+        _ => "dot-secondary"
+    };
+}
