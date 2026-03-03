@@ -1,0 +1,115 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = MBGroup.Web
+build_property.RootNamespace = MBGroup.Web
+build_property.ProjectDir = /root/MB-GROUP--1/MBGroup.Web/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /root/MB-GROUP--1/MBGroup.Web
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[/root/MB-GROUP--1/MBGroup.Web/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/ChiSiamo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ2hpU2lhbW8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Contatti.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ29udGF0dGkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Internal/Commesse.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW50ZXJuYWwvQ29tbWVzc2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Internal/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW50ZXJuYWwvRGFzaGJvYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Internal/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW50ZXJuYWwvTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Internal/Presenze.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW50ZXJuYWwvUHJlc2VuemUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Internal/RimborsoSpese.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW50ZXJuYWwvUmltYm9yc29TcGVzZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Internal/Timbrature.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSW50ZXJuYWwvVGltYnJhdHVyZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Progetti.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUHJvZ2V0dGkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Servizi.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2Vydml6aS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/Settori.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2V0dG9yaS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/InternalLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0ludGVybmFsTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/InternalSidebar.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0ludGVybmFsU2lkZWJhci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/InternalTopBar.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL0ludGVybmFsVG9wQmFyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL1JlZGlyZWN0VG9Mb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Shared/RimborsoModal.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkL1JpbWJvcnNvTW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/root/MB-GROUP--1/MBGroup.Web/Pages/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX0xheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
