@@ -1,0 +1,10 @@
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.csproj.AssemblyReference.cache
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/rpswa.dswa.cache.json
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.GeneratedMSBuildEditorConfig.editorconfig
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.AssemblyInfoInputs.cache
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.AssemblyInfo.cs
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.csproj.CoreCompileInputs.cache
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.MvcApplicationPartsAssemblyInfo.cache
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.RazorAssemblyInfo.cache
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.RazorAssemblyInfo.cs
+/root/MB-GROUP--1/MBGroup.Web/obj/Debug/net8.0/MBGroup.Web.sourcelink.json
