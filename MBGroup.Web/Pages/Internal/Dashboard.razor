@@ -4,11 +4,35 @@
 @inject TimbratureService TimbratureService
 @inject CommesseService CommesseService
 @inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
 
 <PageTitle>Dashboard - MB Group Portale</PageTitle>
 
 @if (Auth.CurrentEmployee != null)
 {
+    <!-- PWA INSTALL BANNER -->
+    @if (ShowInstallBanner)
+    {
+        <div class="pwa-install-banner mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="pwa-install-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-bold">Installa l'app MB Group</div>
+                    <div class="small text-muted-light">Accedi velocemente da telefono senza browser</div>
+                </div>
+                <button class="btn btn-accent btn-sm" @onclick="InstallPwa">
+                    <i class="fas fa-download me-1"></i>Installa
+                </button>
+                <button class="btn btn-link btn-sm text-muted-light p-0" @onclick="() => ShowInstallBanner = false">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    }
+
     <!-- WELCOME HEADER -->
     <div class="dashboard-welcome">
         <div class="row align-items-center">
@@ -65,6 +89,20 @@
                     }
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- RIMBORSO QUICK ACTION -->
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <a href="/internal/rimborsi" class="rimborso-quick-btn">
+                <i class="fas fa-receipt"></i>
+                <div>
+                    <span class="d-block fw-bold">Carica Rimborso Spesa</span>
+                    <span class="small opacity-75">Fotografa uno scontrino e richiedi il rimborso</span>
+                </div>
+                <i class="fas fa-chevron-right ms-auto"></i>
+            </a>
         </div>
     </div>
 
@@ -231,10 +269,37 @@
     private Dictionary<string, decimal> OrePerCommessa = new();
     private Dictionary<DateOnly, TimeSpan> WeekPresence = new();
     private string TimbraturMsg = "";
+    private bool ShowInstallBanner = false;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Mostra banner installazione solo se PWA non è già installata
+            var installed = await JS.InvokeAsync<bool>("isPwaInstalled");
+            if (!installed)
+            {
+                await JS.InvokeVoidAsync("eval", @"
+                    window.addEventListener('pwa-installable', () => {
+                        DotNet.invokeMethodAsync('MBGroup.Web', 'SetInstallable');
+                    }, { once: true });
+                ");
+            }
+        }
+    }
+
+    [Microsoft.JSInterop.JSInvokable]
+    public static void SetInstallable() { /* handled via JS event */ }
+
+    private async Task InstallPwa()
+    {
+        await JS.InvokeVoidAsync("installPwa");
+        ShowInstallBanner = false;
     }
 
     private async Task LoadData()
@@ -281,4 +346,6 @@
         Timbratura.TipoTimbratura.PausaFine => "dot-warning",
         _ => "dot-secondary"
     };
+
+    public void Dispose() { /* nothing to dispose */ }
 }

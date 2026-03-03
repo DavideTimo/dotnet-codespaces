@@ -1,0 +1,354 @@
+@inject IJSRuntime JS
+@inject AuthService Auth
+@inject RimborsoSpesaService RimborsoService
+
+@if (IsVisible)
+{
+    <!-- BACKDROP -->
+    <div class="rimborso-backdrop" @onclick="Close"></div>
+
+    <!-- MODAL -->
+    <div class="rimborso-modal @(ScannerVisible ? "rimborso-modal--scanner" : "")">
+
+        <!-- HEADER -->
+        <div class="rimborso-modal-header">
+            @if (ScannerVisible)
+            {
+                <button class="rimborso-back-btn" @onclick="BackToForm">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h5 class="mb-0">Ritaglia Scontrino</h5>
+            }
+            else
+            {
+                <h5 class="mb-0">
+                    <i class="fas fa-receipt me-2 text-accent"></i>
+                    @(EditMode ? "Modifica Rimborso" : "Nuovo Rimborso Spesa")
+                </h5>
+            }
+            <button class="rimborso-close-btn" @onclick="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- ════════════════ SCANNER VIEW ════════════════ -->
+        @if (ScannerVisible)
+        {
+            <div class="scanner-container">
+                <p class="scanner-hint">
+                    <i class="fas fa-hand-pointer me-1"></i>
+                    Trascina gli angoli per delimitare il documento
+                </p>
+                <canvas id="scannerCanvas" class="scanner-canvas"></canvas>
+                <div class="scanner-actions">
+                    <button class="btn btn-outline-secondary" @onclick="ResetCorners">
+                        <i class="fas fa-redo me-1"></i>Reset
+                    </button>
+                    <button class="btn btn-accent" @onclick="ApplyCrop">
+                        <i class="fas fa-crop-alt me-1"></i>Applica Ritaglio
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- ════════════════ FORM VIEW ════════════════ -->
+            <div class="rimborso-modal-body">
+
+                @if (!string.IsNullOrEmpty(SaveMsg))
+                {
+                    <div class="alert @(SaveError ? "alert-danger" : "alert-success") mb-3">
+                        <i class="fas @(SaveError ? "fa-times-circle" : "fa-check-circle") me-2"></i>@SaveMsg
+                    </div>
+                }
+
+                <!-- FOTO SCONTRINO -->
+                <div class="foto-section mb-4">
+                    @if (!string.IsNullOrEmpty(FotoPreview))
+                    {
+                        <div class="foto-preview-container">
+                            <img src="@FotoPreview" class="foto-preview" alt="Scontrino" />
+                            <div class="foto-preview-actions">
+                                <button class="btn btn-sm btn-light" @onclick="OpenScanner" title="Ritaglia">
+                                    <i class="fas fa-crop-alt me-1"></i>Ritaglia
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="RemoveFoto" title="Rimuovi foto">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <label class="foto-upload-area" for="fotoInput">
+                            <div class="foto-upload-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <span class="foto-upload-title">Carica Scontrino</span>
+                            <span class="foto-upload-hint">Tocca per scattare una foto o scegliere dalla galleria</span>
+                        </label>
+                    }
+
+                    <!-- Input file nascosto — capture=environment = fotocamera posteriore mobile -->
+                    <InputFile id="fotoInput"
+                               class="d-none"
+                               accept="image/*"
+                               OnChange="HandleFotoSelected" />
+                </div>
+
+                <!-- DATI SPESA -->
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label fw-medium">Data spesa *</label>
+                        <InputDate class="form-control" @bind-Value="Model.Data" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-medium">Importo (€) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <InputNumber class="form-control"
+                                         @bind-Value="Model.Importo"
+                                         placeholder="0,00"
+                                         min="0.01" step="0.01" />
+                        </div>
+                        @if (Model.Importo <= 0 && ShowValidation)
+                        {
+                            <div class="text-danger small mt-1">Inserisci l'importo</div>
+                        }
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-medium">Categoria *</label>
+                        <InputSelect class="form-select" @bind-Value="Model.Categoria">
+                            @foreach (var cat in Enum.GetValues<CategoriaSpesa>())
+                            {
+                                <option value="@cat">@GetCatLabel(cat)</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-medium">Descrizione / Note</label>
+                        <InputTextArea class="form-control" @bind-Value="Model.Descrizione"
+                                       rows="3"
+                                       placeholder="Es: Pranzo con cliente Adriatic Refining, trasferta Venezia..." />
+                    </div>
+                </div>
+
+                <!-- AZIONI FORM -->
+                <div class="rimborso-modal-footer mt-4">
+                    <button class="btn btn-outline-secondary" @onclick="Close" disabled="@Saving">
+                        Annulla
+                    </button>
+                    <button class="btn btn-accent" @onclick="Save" disabled="@Saving">
+                        @if (Saving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Salvataggio...</span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-paper-plane me-2"></i>
+                            <span>@(EditMode ? "Aggiorna" : "Invia Rimborso")</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public RimborsoSpesa? ExistingRimborso { get; set; }
+
+    private bool EditMode => ExistingRimborso != null;
+    private SpesaForm Model = new();
+    private string FotoPreview = "";   // data URL mostrata all'utente
+    private string FotoBase64  = "";   // base64 pura da salvare
+    private string FotoMime    = "image/jpeg";
+
+    private bool ScannerVisible = false;
+    private bool Saving = false;
+    private bool SaveError = false;
+    private bool ShowValidation = false;
+    private string SaveMsg = "";
+
+    protected override void OnParametersSet()
+    {
+        if (ExistingRimborso != null)
+        {
+            Model = new SpesaForm
+            {
+                Data        = ExistingRimborso.Data,
+                Importo     = ExistingRimborso.Importo,
+                Categoria   = ExistingRimborso.Categoria,
+                Descrizione = ExistingRimborso.Descrizione ?? ""
+            };
+            FotoPreview = ExistingRimborso.FotoSrc;
+            FotoBase64  = ExistingRimborso.FotoBase64 ?? "";
+            FotoMime    = ExistingRimborso.FotoMimeType ?? "image/jpeg";
+        }
+        else
+        {
+            Model = new SpesaForm();
+            FotoPreview = "";
+            FotoBase64  = "";
+        }
+    }
+
+    // ── Foto handling ──────────────────────────────────────────────────────
+
+    private async Task HandleFotoSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        // Leggi e comprimi (max 2000px, JPEG 88%)
+        using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var rawBase64 = Convert.ToBase64String(ms.ToArray());
+        FotoMime = file.ContentType;
+        var dataUrl = $"data:{FotoMime};base64,{rawBase64}";
+
+        // Ridimensiona via JS
+        var resized = await JS.InvokeAsync<string>("MBScanner.resizeImage", dataUrl, 2000, 2000, 0.88);
+        FotoPreview = resized;
+        FotoBase64  = resized.Split(',').Last();
+        FotoMime    = "image/jpeg";
+
+        // Mostra direttamente lo scanner per il ritaglio
+        await OpenScanner();
+    }
+
+    private void RemoveFoto()
+    {
+        FotoPreview = "";
+        FotoBase64  = "";
+    }
+
+    // ── Scanner ────────────────────────────────────────────────────────────
+
+    private async Task OpenScanner()
+    {
+        if (string.IsNullOrEmpty(FotoPreview)) return;
+        ScannerVisible = true;
+        await InvokeAsync(StateHasChanged);
+        // Piccolo delay per far renderizzare il canvas
+        await Task.Delay(80);
+        await JS.InvokeVoidAsync("MBScanner.init", "scannerCanvas", FotoPreview, null);
+    }
+
+    private async Task ResetCorners()
+    {
+        await JS.InvokeVoidAsync("MBScanner.reset");
+    }
+
+    private async Task ApplyCrop()
+    {
+        var cropped = await JS.InvokeAsync<string>("MBScanner.crop");
+        if (!string.IsNullOrEmpty(cropped))
+        {
+            FotoPreview = cropped;
+            FotoBase64  = cropped.Split(',').Last();
+            FotoMime    = "image/jpeg";
+        }
+        await JS.InvokeVoidAsync("MBScanner.destroy");
+        ScannerVisible = false;
+    }
+
+    private async Task BackToForm()
+    {
+        await JS.InvokeVoidAsync("MBScanner.destroy");
+        ScannerVisible = false;
+    }
+
+    // ── Save ───────────────────────────────────────────────────────────────
+
+    private async Task Save()
+    {
+        ShowValidation = true;
+        if (Model.Importo <= 0) return;
+        if (Auth.CurrentEmployee == null) return;
+
+        Saving = true;
+        try
+        {
+            if (EditMode && ExistingRimborso != null)
+            {
+                ExistingRimborso.Data        = Model.Data;
+                ExistingRimborso.Importo     = Model.Importo;
+                ExistingRimborso.Categoria   = Model.Categoria;
+                ExistingRimborso.Descrizione = Model.Descrizione;
+                if (!string.IsNullOrEmpty(FotoBase64))
+                {
+                    ExistingRimborso.FotoBase64   = FotoBase64;
+                    ExistingRimborso.FotoMimeType = FotoMime;
+                }
+                await RimborsoService.UpdateAsync(ExistingRimborso);
+            }
+            else
+            {
+                var rimborso = new RimborsoSpesa
+                {
+                    EmployeeId   = Auth.CurrentEmployee.Id,
+                    Data         = Model.Data,
+                    Importo      = Model.Importo,
+                    Categoria    = Model.Categoria,
+                    Descrizione  = Model.Descrizione,
+                    FotoBase64   = string.IsNullOrEmpty(FotoBase64) ? null : FotoBase64,
+                    FotoMimeType = FotoMime,
+                    Stato        = StatoRimborso.Inviato
+                };
+                await RimborsoService.CreateAsync(rimborso);
+            }
+            SaveMsg   = "Rimborso inviato con successo!";
+            SaveError = false;
+            await OnSaved.InvokeAsync();
+            await Task.Delay(1200);
+            await Close();
+        }
+        catch (Exception ex)
+        {
+            SaveMsg   = "Errore: " + ex.Message;
+            SaveError = true;
+        }
+        finally { Saving = false; }
+    }
+
+    private async Task Close()
+    {
+        ScannerVisible = false;
+        ShowValidation = false;
+        SaveMsg = "";
+        await OnClose.InvokeAsync();
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    private string GetCatLabel(CategoriaSpesa c) => c switch
+    {
+        CategoriaSpesa.Trasferta     => "Trasferta",
+        CategoriaSpesa.Vitto         => "Vitto (pasto)",
+        CategoriaSpesa.Alloggio      => "Alloggio",
+        CategoriaSpesa.Trasporto     => "Trasporto (treno/aereo)",
+        CategoriaSpesa.Carburante    => "Carburante",
+        CategoriaSpesa.Parcheggio    => "Parcheggio",
+        CategoriaSpesa.Pedaggi       => "Pedaggi autostrada",
+        CategoriaSpesa.Formazione    => "Formazione",
+        CategoriaSpesa.Rappresentanza => "Rappresentanza",
+        CategoriaSpesa.Altro         => "Altro",
+        _ => c.ToString()
+    };
+
+    private class SpesaForm
+    {
+        public DateOnly Data        { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        public decimal  Importo     { get; set; }
+        public CategoriaSpesa Categoria  { get; set; } = CategoriaSpesa.Vitto;
+        public string   Descrizione { get; set; } = "";
+    }
+}

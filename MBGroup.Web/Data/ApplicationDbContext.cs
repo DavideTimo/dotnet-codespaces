@@ -11,6 +11,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Timbratura> Timbrature => Set<Timbratura>();
     public DbSet<Commessa> Commesse => Set<Commessa>();
     public DbSet<CommessaOre> CommesseOre => Set<CommessaOre>();
+    public DbSet<RimborsoSpesa> RimborsiSpese => Set<RimborsoSpesa>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +42,16 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Commessa>()
             .Property(c => c.BudgetOre)
             .HasPrecision(8, 2);
+
+        modelBuilder.Entity<RimborsoSpesa>()
+            .HasOne(r => r.Employee)
+            .WithMany()
+            .HasForeignKey(r => r.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RimborsoSpesa>()
+            .Property(r => r.Importo)
+            .HasPrecision(10, 2);
 
         // Seed data
         modelBuilder.Entity<Employee>().HasData(

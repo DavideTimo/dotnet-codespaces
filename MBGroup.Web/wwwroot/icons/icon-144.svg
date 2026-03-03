@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144">
+  <rect width="144" height="144" fill="#0d1b2a" rx="18"/>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Arial,sans-serif" font-weight="800" font-size="36" fill="white">MB</text>
+  <text x="50%" y="72%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Arial,sans-serif" font-weight="400" font-size="20" fill="#e8902a">Group</text>
+</svg>

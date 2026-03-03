@@ -1235,6 +1235,316 @@ a:hover { color: var(--mb-accent); }
 }
 
 /* ================================================
+   PWA INSTALL BANNER
+================================================ */
+.pwa-install-banner {
+  background: linear-gradient(135deg, var(--mb-navy-light), var(--mb-navy-mid));
+  border-radius: var(--mb-radius);
+  padding: 1rem 1.25rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--mb-shadow);
+  border: 1px solid rgba(232,144,42,0.25);
+}
+.pwa-install-icon {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: var(--mb-accent-light);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mb-accent);
+  font-size: 1.25rem;
+}
+
+/* ================================================
+   RIMBORSO QUICK BTN (Dashboard)
+================================================ */
+.rimborso-quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border-radius: var(--mb-radius);
+  padding: 1.1rem 1.5rem;
+  box-shadow: var(--mb-shadow);
+  color: var(--mb-text);
+  border: 1px solid var(--mb-gray);
+  transition: all var(--mb-transition);
+  border-left: 4px solid var(--mb-accent);
+}
+.rimborso-quick-btn:hover {
+  box-shadow: var(--mb-shadow-lg);
+  transform: translateX(3px);
+  color: var(--mb-text);
+}
+.rimborso-quick-btn > i:first-child {
+  font-size: 1.5rem;
+  color: var(--mb-accent);
+  width: 32px;
+  text-align: center;
+}
+
+/* ================================================
+   RIMBORSO MODAL
+================================================ */
+.rimborso-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(13,27,42,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  animation: fadeIn 0.18s ease;
+}
+
+.rimborso-modal {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  z-index: 1060;
+  max-height: 94vh;
+  overflow-y: auto;
+  animation: slideUp 0.28s cubic-bezier(0.34, 1.20, 0.64, 1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+}
+@media (min-width: 640px) {
+  .rimborso-modal {
+    bottom: auto; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%;
+    max-width: 520px;
+    border-radius: var(--mb-radius);
+    max-height: 92vh;
+    animation: scaleIn 0.25s cubic-bezier(0.34, 1.20, 0.64, 1);
+  }
+}
+.rimborso-modal--scanner {
+  max-height: 98vh;
+}
+@media (min-width: 640px) {
+  .rimborso-modal--scanner { max-width: 680px; }
+}
+
+.rimborso-modal-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--mb-gray);
+  position: sticky; top: 0;
+  background: white; z-index: 1;
+}
+.rimborso-modal-header h5 { flex: 1; }
+.rimborso-close-btn, .rimborso-back-btn {
+  width: 36px; height: 36px;
+  border: none; background: var(--mb-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--mb-text-muted);
+  transition: all var(--mb-transition);
+  flex-shrink: 0;
+}
+.rimborso-close-btn:hover, .rimborso-back-btn:hover {
+  background: var(--mb-gray); color: var(--mb-text);
+}
+
+.rimborso-modal-body { padding: 1.25rem; }
+.rimborso-modal-footer {
+  display: flex; gap: 0.75rem; justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--mb-gray);
+}
+
+/* ── Foto section ── */
+.foto-section { text-align: center; }
+
+.foto-upload-area {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.5rem;
+  border: 2px dashed var(--mb-gray);
+  border-radius: var(--mb-radius);
+  padding: 2.5rem 1rem;
+  cursor: pointer;
+  transition: all var(--mb-transition);
+  background: var(--mb-light);
+}
+.foto-upload-area:hover, .foto-upload-area:focus-within {
+  border-color: var(--mb-accent);
+  background: var(--mb-accent-light);
+}
+.foto-upload-icon {
+  width: 64px; height: 64px;
+  background: var(--mb-accent-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mb-accent);
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  transition: transform var(--mb-transition);
+}
+.foto-upload-area:hover .foto-upload-icon { transform: scale(1.1); }
+.foto-upload-title { font-weight: 700; font-size: 1rem; }
+.foto-upload-hint { font-size: 0.8rem; color: var(--mb-text-muted); }
+
+.foto-preview-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+.foto-preview {
+  max-width: 100%;
+  max-height: 260px;
+  border-radius: var(--mb-radius);
+  object-fit: contain;
+  border: 2px solid var(--mb-gray);
+  display: block;
+}
+.foto-preview-actions {
+  position: absolute; bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 0.5rem;
+  background: rgba(0,0,0,0.5);
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  backdrop-filter: blur(4px);
+}
+
+/* ================================================
+   DOCUMENT SCANNER
+================================================ */
+.scanner-container {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0.75rem;
+  gap: 0.75rem;
+}
+.scanner-hint {
+  font-size: 0.82rem; color: var(--mb-text-muted);
+  text-align: center; margin: 0;
+}
+.scanner-canvas {
+  max-width: 100%;
+  border-radius: var(--mb-radius-sm);
+  cursor: crosshair;
+  display: block;
+  touch-action: none; /* prevent scroll while dragging */
+}
+.scanner-actions {
+  display: flex; gap: 0.75rem; width: 100%;
+  padding: 0 0.5rem;
+}
+.scanner-actions .btn { flex: 1; }
+
+/* ================================================
+   RIMBORSI LIST
+================================================ */
+.rimborsi-list { display: flex; flex-direction: column; }
+
+.rimborso-row {
+  display: flex; align-items: stretch;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--mb-gray);
+  transition: background var(--mb-transition);
+}
+.rimborso-row:last-child { border-bottom: none; }
+.rimborso-row:hover { background: var(--mb-light); }
+
+.rimborso-thumb {
+  width: 60px; height: 60px; flex-shrink: 0;
+  border-radius: var(--mb-radius-sm);
+  overflow: hidden; position: relative;
+  cursor: pointer; background: var(--mb-light);
+  border: 1px solid var(--mb-gray);
+}
+.rimborso-img-thumb {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.rimborso-thumb-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 0.85rem;
+  opacity: 0; transition: opacity var(--mb-transition);
+}
+.rimborso-thumb:hover .rimborso-thumb-overlay { opacity: 1; }
+.rimborso-no-foto {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--mb-text-muted); font-size: 1.35rem;
+}
+
+.rimborso-info { flex: 1; min-width: 0; }
+.rimborso-top { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.25rem; }
+.rimborso-cat-badge {
+  display: inline-flex; align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 50px;
+  font-size: 0.72rem; font-weight: 700;
+  color: var(--mb-text);
+}
+.rimborso-stato {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  padding: 0.15rem 0.5rem; border-radius: 50px; letter-spacing: 0.3px;
+}
+.stato-approvato { background: rgba(16,185,129,0.12); color: #10b981; }
+.stato-rifiutato { background: rgba(239,68,68,0.1);  color: #ef4444; }
+.stato-inviato   { background: rgba(245,158,11,0.12); color: #d97706; }
+.stato-bozza     { background: rgba(107,114,128,0.1); color: #6b7280; }
+
+.rimborso-date { font-size: 0.82rem; color: var(--mb-text-muted); }
+.rimborso-desc { font-size: 0.82rem; color: var(--mb-text); margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rimborso-note-app { font-size: 0.78rem; color: #d97706; margin-top: 0.2rem; }
+
+.rimborso-right {
+  display: flex; flex-direction: column; align-items: flex-end;
+  justify-content: center; flex-shrink: 0;
+}
+.rimborso-importo { font-size: 1.1rem; font-weight: 800; color: var(--mb-navy); }
+.rimborso-row-actions { display: flex; align-items: center; margin-top: 0.25rem; }
+
+/* ================================================
+   LIGHTBOX
+================================================ */
+.lightbox-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.18s ease;
+  padding: 1rem;
+}
+.lightbox-container {
+  position: relative; max-width: 95vw; max-height: 92vh;
+  display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+}
+.lightbox-close {
+  position: absolute; top: -44px; right: 0;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+  color: white; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--mb-transition);
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.3); }
+.lightbox-img {
+  max-width: 100%; max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--mb-radius-sm);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* ================================================
+   ANIMATIONS
+================================================ */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0.7; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: translate(-50%, -48%) scale(0.94); opacity: 0.6; }
+  to   { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+
+/* ================================================
    BLAZOR ERROR UI
 ================================================ */
 #blazor-error-ui {

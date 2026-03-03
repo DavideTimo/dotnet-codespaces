@@ -1,0 +1,369 @@
+@page "/internal/rimborsi"
+@layout InternalLayout
+@inject AuthService Auth
+@inject RimborsoSpesaService RimborsoService
+@inject IJSRuntime JS
+
+<PageTitle>Rimborsi Spese - MB Group Portale</PageTitle>
+
+<!-- HEADER ROW -->
+<div class="row g-3 mb-4 align-items-center">
+    <div class="col">
+        <h5 class="mb-1 fw-bold">Rimborsi Spese</h5>
+        <p class="text-muted mb-0 small">Gestisci le tue richieste di rimborso mensili</p>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-accent" @onclick="OpenModal">
+            <i class="fas fa-receipt me-2"></i>Carica Rimborso
+        </button>
+    </div>
+</div>
+
+<!-- KPI MESE CORRENTE -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-orange"><i class="fas fa-euro-sign"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-value">€@Riepilogo.Totale.ToString("F2")</span>
+                <span class="kpi-label">Totale mese</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-green"><i class="fas fa-check-circle"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-value">€@Riepilogo.TotaleApprovato.ToString("F2")</span>
+                <span class="kpi-label">Approvato</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-blue"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-value">€@Riepilogo.TotaleInAttesa.ToString("F2")</span>
+                <span class="kpi-label">In attesa</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-icon kpi-icon-purple"><i class="fas fa-file-invoice"></i></div>
+            <div class="kpi-content">
+                <span class="kpi-value">@Riepilogo.Conteggio</span>
+                <span class="kpi-label">Scontrini</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FILTRI -->
+<div class="dashboard-card mb-4">
+    <div class="dashboard-card-header">
+        <h6><i class="fas fa-list me-2"></i>I tuoi rimborsi</h6>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <select class="form-select form-select-sm" style="width:110px" @bind="FiltroMese" @bind:after="LoadData">
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var mVal = m;
+                    <option value="@mVal">@new DateTime(2024, mVal, 1).ToString("MMMM", new System.Globalization.CultureInfo("it-IT"))</option>
+                }
+            </select>
+            <select class="form-select form-select-sm" style="width:90px" @bind="FiltroAnno" @bind:after="LoadData">
+                @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--)
+                {
+                    <option value="@y">@y</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="dashboard-card-body p-0">
+        @if (Rimborsi.Any())
+        {
+            <div class="rimborsi-list">
+                @foreach (var r in Rimborsi)
+                {
+                    <div class="rimborso-row">
+                        <!-- FOTO THUMBNAIL -->
+                        <div class="rimborso-thumb" @onclick="() => ShowFoto(r)">
+                            @if (r.HasFoto)
+                            {
+                                <img src="@r.FotoSrc" alt="Scontrino" class="rimborso-img-thumb" />
+                                <div class="rimborso-thumb-overlay"><i class="fas fa-search-plus"></i></div>
+                            }
+                            else
+                            {
+                                <div class="rimborso-no-foto"><i class="fas fa-file-invoice"></i></div>
+                            }
+                        </div>
+
+                        <!-- INFO -->
+                        <div class="rimborso-info">
+                            <div class="rimborso-top">
+                                <span class="rimborso-cat-badge" style="background:@GetCatColor(r.Categoria)">
+                                    <i class="@GetCatIcon(r.Categoria) me-1"></i>@GetCatLabel(r.Categoria)
+                                </span>
+                                <span class="rimborso-stato @GetStatoBadge(r.Stato)">@GetStatoLabel(r.Stato)</span>
+                            </div>
+                            <div class="rimborso-date">@r.Data.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))</div>
+                            @if (!string.IsNullOrEmpty(r.Descrizione))
+                            {
+                                <div class="rimborso-desc">@r.Descrizione</div>
+                            }
+                            @if (!string.IsNullOrEmpty(r.NoteApprovatore))
+                            {
+                                <div class="rimborso-note-app">
+                                    <i class="fas fa-comment-alt me-1"></i>@r.NoteApprovatore
+                                </div>
+                            }
+                        </div>
+
+                        <!-- IMPORTO + AZIONI -->
+                        <div class="rimborso-right">
+                            <span class="rimborso-importo">€@r.Importo.ToString("F2")</span>
+                            @if (r.Stato == StatoRimborso.Inviato || r.Stato == StatoRimborso.Bozza)
+                            {
+                                <div class="rimborso-row-actions">
+                                    <button class="btn btn-sm btn-link p-0 me-1" @onclick="() => EditRimborso(r)" title="Modifica">
+                                        <i class="fas fa-pen text-muted"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-link p-0" @onclick="() => DeleteRimborso(r)" title="Elimina">
+                                        <i class="fas fa-trash text-danger"></i>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state py-5">
+                <i class="fas fa-receipt text-muted"></i>
+                <p class="text-muted">Nessun rimborso per il periodo selezionato</p>
+                <button class="btn btn-accent mt-2" @onclick="OpenModal">
+                    <i class="fas fa-plus me-2"></i>Carica il tuo primo rimborso
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- RIEPILOGO PER CATEGORIA -->
+@if (Riepilogo.PerCategoria.Any())
+{
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h6><i class="fas fa-chart-pie me-2"></i>Ripartizione per Categoria</h6>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="row g-2">
+                @foreach (var kv in Riepilogo.PerCategoria.OrderByDescending(x => x.Value))
+                {
+                    var pct = Riepilogo.Totale > 0 ? (double)(kv.Value / Riepilogo.Totale) * 100 : 0;
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="fw-medium">
+                                <i class="@GetCatIcon(kv.Key) me-1 text-muted"></i>
+                                @GetCatLabel(kv.Key)
+                            </small>
+                            <small class="text-muted">€@kv.Value.ToString("F2")</small>
+                        </div>
+                        <div class="progress mb-2" style="height:5px">
+                            <div class="progress-bar" style="width:@((int)pct)%;background:@GetCatColor(kv.Key)"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL CARICA RIMBORSO -->
+<RimborsoModal IsVisible="@ModalVisible"
+               ExistingRimborso="@EditingRimborso"
+               OnClose="CloseModal"
+               OnSaved="LoadData" />
+
+<!-- LIGHTBOX FOTO -->
+@if (LightboxFoto != null)
+{
+    <div class="lightbox-backdrop" @onclick="CloseLightbox">
+        <div class="lightbox-container" @onclick:stopPropagation="true">
+            <button class="lightbox-close" @onclick="CloseLightbox">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="@LightboxFoto" class="lightbox-img" alt="Scontrino" />
+            <div class="lightbox-info">
+                <a href="@LightboxFoto" download="scontrino.jpg" class="btn btn-sm btn-accent">
+                    <i class="fas fa-download me-1"></i>Scarica
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- SEZIONE MANAGER: rimborsi da approvare -->
+@if (Auth.IsManager && RimborsiDaApprovare.Any())
+{
+    <div class="dashboard-card mt-4">
+        <div class="dashboard-card-header">
+            <h6><i class="fas fa-user-check me-2"></i>Da Approvare</h6>
+            <span class="badge bg-warning text-dark">@RimborsiDaApprovare.Count</span>
+        </div>
+        <div class="dashboard-card-body p-0">
+            @foreach (var r in RimborsiDaApprovare)
+            {
+                <div class="rimborso-row">
+                    <div class="rimborso-thumb" @onclick="() => ShowFoto(r)">
+                        @if (r.HasFoto)
+                        {
+                            <img src="@r.FotoSrc" class="rimborso-img-thumb" alt="" />
+                            <div class="rimborso-thumb-overlay"><i class="fas fa-search-plus"></i></div>
+                        }
+                        else
+                        {
+                            <div class="rimborso-no-foto"><i class="fas fa-file-invoice"></i></div>
+                        }
+                    </div>
+                    <div class="rimborso-info">
+                        <div class="rimborso-top">
+                            <span class="fw-bold">@r.Employee?.FullName</span>
+                            <span class="rimborso-cat-badge ms-2" style="background:@GetCatColor(r.Categoria)">
+                                @GetCatLabel(r.Categoria)
+                            </span>
+                        </div>
+                        <div class="rimborso-date">@r.Data.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("it-IT"))</div>
+                        @if (!string.IsNullOrEmpty(r.Descrizione))
+                        {
+                            <div class="rimborso-desc">@r.Descrizione</div>
+                        }
+                    </div>
+                    <div class="rimborso-right">
+                        <span class="rimborso-importo">€@r.Importo.ToString("F2")</span>
+                        <div class="rimborso-row-actions mt-1">
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => Approva(r)">
+                                <i class="fas fa-check me-1"></i>Approva
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => Rifiuta(r)">
+                                <i class="fas fa-times me-1"></i>Rifiuta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<RimborsoSpesa> Rimborsi = new();
+    private List<RimborsoSpesa> RimborsiDaApprovare = new();
+    private RiepilogoRimborsi Riepilogo = new();
+    private bool ModalVisible = false;
+    private RimborsoSpesa? EditingRimborso = null;
+    private string? LightboxFoto = null;
+    private int FiltroMese = DateTime.Today.Month;
+    private int FiltroAnno = DateTime.Today.Year;
+
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    private async Task LoadData()
+    {
+        if (Auth.CurrentEmployee == null) return;
+        Rimborsi  = await RimborsoService.GetByEmployeeAsync(Auth.CurrentEmployee.Id, FiltroAnno, FiltroMese);
+        Riepilogo = await RimborsoService.GetRiepilogoMensileAsync(Auth.CurrentEmployee.Id, FiltroAnno, FiltroMese);
+        if (Auth.IsManager)
+            RimborsiDaApprovare = await RimborsoService.GetAllAsync(StatoRimborso.Inviato);
+    }
+
+    private void OpenModal()    { EditingRimborso = null; ModalVisible = true; }
+    private void CloseModal()   { ModalVisible = false; EditingRimborso = null; }
+    private void EditRimborso(RimborsoSpesa r) { EditingRimborso = r; ModalVisible = true; }
+
+    private async Task DeleteRimborso(RimborsoSpesa r)
+    {
+        await RimborsoService.DeleteAsync(r.Id);
+        await LoadData();
+    }
+
+    private void ShowFoto(RimborsoSpesa r)
+    {
+        if (r.HasFoto) LightboxFoto = r.FotoSrc;
+    }
+    private void CloseLightbox() => LightboxFoto = null;
+
+    private async Task Approva(RimborsoSpesa r)
+    {
+        if (Auth.CurrentEmployee == null) return;
+        await RimborsoService.ApprovaAsync(r.Id, Auth.CurrentEmployee.Id);
+        await LoadData();
+    }
+
+    private async Task Rifiuta(RimborsoSpesa r)
+    {
+        if (Auth.CurrentEmployee == null) return;
+        await RimborsoService.RifiutaAsync(r.Id, Auth.CurrentEmployee.Id, "Non idoneo al rimborso");
+        await LoadData();
+    }
+
+    // ── Label helpers ──────────────────────────────────────────────────────
+
+    private string GetCatLabel(CategoriaSpesa c) => c switch
+    {
+        CategoriaSpesa.Trasferta      => "Trasferta",
+        CategoriaSpesa.Vitto          => "Vitto",
+        CategoriaSpesa.Alloggio       => "Alloggio",
+        CategoriaSpesa.Trasporto      => "Trasporto",
+        CategoriaSpesa.Carburante     => "Carburante",
+        CategoriaSpesa.Parcheggio     => "Parcheggio",
+        CategoriaSpesa.Pedaggi        => "Pedaggi",
+        CategoriaSpesa.Formazione     => "Formazione",
+        CategoriaSpesa.Rappresentanza => "Rappresentanza",
+        _                             => "Altro"
+    };
+
+    private string GetCatIcon(CategoriaSpesa c) => c switch
+    {
+        CategoriaSpesa.Trasferta      => "fas fa-plane",
+        CategoriaSpesa.Vitto          => "fas fa-utensils",
+        CategoriaSpesa.Alloggio       => "fas fa-hotel",
+        CategoriaSpesa.Trasporto      => "fas fa-train",
+        CategoriaSpesa.Carburante     => "fas fa-gas-pump",
+        CategoriaSpesa.Parcheggio     => "fas fa-parking",
+        CategoriaSpesa.Pedaggi        => "fas fa-road",
+        CategoriaSpesa.Formazione     => "fas fa-graduation-cap",
+        CategoriaSpesa.Rappresentanza => "fas fa-handshake",
+        _                             => "fas fa-receipt"
+    };
+
+    private string GetCatColor(CategoriaSpesa c) => c switch
+    {
+        CategoriaSpesa.Vitto          => "rgba(16,185,129,0.15)",
+        CategoriaSpesa.Trasporto      => "rgba(59,130,246,0.15)",
+        CategoriaSpesa.Carburante     => "rgba(239,68,68,0.12)",
+        CategoriaSpesa.Alloggio       => "rgba(139,92,246,0.15)",
+        CategoriaSpesa.Trasferta      => "rgba(245,158,11,0.15)",
+        _                             => "rgba(107,114,128,0.12)"
+    };
+
+    private string GetStatoLabel(StatoRimborso s) => s switch
+    {
+        StatoRimborso.Bozza      => "Bozza",
+        StatoRimborso.Inviato    => "In attesa",
+        StatoRimborso.Approvato  => "Approvato",
+        StatoRimborso.Rifiutato  => "Rifiutato",
+        _ => s.ToString()
+    };
+
+    private string GetStatoBadge(StatoRimborso s) => s switch
+    {
+        StatoRimborso.Approvato  => "stato-approvato",
+        StatoRimborso.Rifiutato  => "stato-rifiutato",
+        StatoRimborso.Inviato    => "stato-inviato",
+        _                        => "stato-bozza"
+    };
+}

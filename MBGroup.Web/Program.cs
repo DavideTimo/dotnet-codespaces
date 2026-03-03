@@ -14,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<TimbratureService>();
 builder.Services.AddScoped<CommesseService>();
+builder.Services.AddScoped<RimborsoSpesaService>();
 
 var app = builder.Build();
 
